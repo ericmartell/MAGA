@@ -6,13 +6,13 @@ import java.util.concurrent.ForkJoinPool;
 
 import javax.sql.DataSource;
 
+import com.ericdmartell.cache.Cache;
 import com.ericdmartell.simpleorm.associations.SimpleORMAssociation;
 import com.ericdmartell.simpleorm.cache.SimpleORMCache;
 import com.ericdmartell.simpleorm.factory.ActionFactory;
 import com.ericdmartell.simpleorm.objects.SimpleORMLoadTemplate;
 import com.ericdmartell.simpleorm.objects.SimpleORMObject;
 import com.ericdmartell.simpleorm.utils.SimpleORMException;
-import com.ericmartell.cache.Cache;
 
 public class SimpleORM {
 	private ActionFactory loadPathFactory;
