@@ -82,3 +82,22 @@ public class TestAssoc extends SimpleORMAssociation {
 
 }
 ```
+**Using MAGA in Application Code**
+```java
+SimpleORM orm = new SimpleORM(dataSource, cache);
+```
+Where *dataSource* is a *javax.sql.DataSource* and cache is a *com.ericdmartell.cache.Cache*, an abstract class implemented with whatever technology you'd like.  I've provided a Memcached and Java HashMap implementation.
+
+orm has the following methods:
+* **load(Class clazz, long id)**: Returns object of Class with id.
+* **load(Class clazz, Collection<Long> ids)**: Returns list of objects of Class with provided ids.
+* **loadAll(Class clazz)**: Returns list of all objects of Class.
+* **loadAll(Class clazz)**: Returns list of all objects of Class.
+* **save(SimpleORMObject toSave)**: Persists object state to database.
+* **delete(SimpleORMObject toDelete)**: Removes object from database.
+* **loadAssociatedObjects(SimpleORMObject baseObject, SimpleORMAssociation association)**: Taking an object and association, returns a list of objects that are associated with the provided object via the association.
+* **addAssociation(SimpleORMObject baseObject, SimpleORMObject otherObject, SimpleORMAssociation association)**: Adds an association to the database between the two provided objects via the definition provided by the association object.
+* **deleteAssociation(SimpleORMObject baseObject, SimpleORMObject otherObject, SimpleORMAssociation association)**: Removes the link between the provided objects by the association.
+* **deleteAssociations(SimpleORMObject baseObject, SimpleORMAssociation association)**: Removes the link between the provided object and all other objects defined by the association.
+* **schemaSync()**:  Updates the underlying database to match your MAGA class definitions.
+
