@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import com.ericdmartell.maga.associations.SimpleMAGAAssociation;
+import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
 import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGAObject;
@@ -24,8 +24,8 @@ public class AssociationAdd {
 		this.cache = cache;
 	}
 
-	public void add(MAGAObject obj, MAGAObject obj2, SimpleMAGAAssociation association) {
-		if (association.type() == SimpleMAGAAssociation.MANY_TO_MANY) {
+	public void add(MAGAObject obj, MAGAObject obj2, MAGAAssociation association) {
+		if (association.type() == MAGAAssociation.MANY_TO_MANY) {
 			manyToMany(obj, obj2, association);
 		} else {
 			if (obj.getClass() == association.class1()) {
@@ -36,7 +36,7 @@ public class AssociationAdd {
 		}
 	}
 
-	private void manyToMany(MAGAObject obj, MAGAObject obj2, SimpleMAGAAssociation association) {
+	private void manyToMany(MAGAObject obj, MAGAObject obj2, MAGAAssociation association) {
 		
 		
 		// DB Part
@@ -49,7 +49,7 @@ public class AssociationAdd {
 		cache.dirtyAssoc(obj2, association);
 	}
 
-	private void oneToMany(MAGAObject objOfClass1, MAGAObject objOfClass2, SimpleMAGAAssociation association) {
+	private void oneToMany(MAGAObject objOfClass1, MAGAObject objOfClass2, MAGAAssociation association) {
 		
 		// We need this because if we're adding an assoc for a one-many, we might be switching the assoc of the old one.
 		MAGAObject oldOneOfTheOneToMany = null;

@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import com.ericdmartell.maga.associations.SimpleMAGAAssociation;
+import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
 import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGAObject;
@@ -23,9 +23,9 @@ public class ObjectDelete {
 	
 	public void delete(MAGAObject obj) {
 		//Delete assocs and object itself.
-		List assocs = loadPathFactory.getNewAssociationLoad().loadWhereHasClass(SimpleMAGAAssociation.class);
+		List assocs = loadPathFactory.getNewAssociationLoad().loadWhereHasClass(MAGAAssociation.class);
 		for (Object assoc : assocs) {
-			loadPathFactory.getNewAssociationDelete().delete(obj, (SimpleMAGAAssociation) assoc);
+			loadPathFactory.getNewAssociationDelete().delete(obj, (MAGAAssociation) assoc);
 		}
 		JDBCUtil.executeUpdate("delete from " + obj.getClass().getSimpleName() + " where id = " + obj.id, dataSource);
 		cache.dirtyObject(obj);

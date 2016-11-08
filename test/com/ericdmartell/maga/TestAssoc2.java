@@ -1,8 +1,8 @@
 package com.ericdmartell.maga;
 
-import com.ericdmartell.maga.associations.SimpleMAGAAssociation;
+import com.ericdmartell.maga.associations.MAGAAssociation;
 
-public class TestAssoc2 extends SimpleMAGAAssociation {
+public class TestAssoc2 extends MAGAAssociation {
 
 	@Override
 	public Class class1() {
@@ -16,7 +16,7 @@ public class TestAssoc2 extends SimpleMAGAAssociation {
 
 	@Override
 	public int type() {
-		return SimpleMAGAAssociation.ONE_TO_MANY;
+		return MAGAAssociation.ONE_TO_MANY;
 	}
 
 	@Override

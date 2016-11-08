@@ -9,7 +9,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import com.ericdmartell.maga.associations.SimpleMAGAAssociation;
+import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
 import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGAObject;
@@ -33,7 +33,7 @@ public class ObjectUpdate {
 	public void update(final MAGAObject obj) {
 		//Object for history
 		MAGAObject oldObj = null;
-		List<SimpleMAGAAssociation> affectedAssociations = loadPathFactory.getNewAssociationLoad()
+		List<MAGAAssociation> affectedAssociations = loadPathFactory.getNewAssociationLoad()
 				.loadWhereHasClassWithJoinColumn(obj.getClass());
 		if (obj.id == 0) {
 			//We're adding a new object.
@@ -42,7 +42,7 @@ public class ObjectUpdate {
 			oldObj = loadPathFactory.getNewObjectLoad().load(obj.getClass(), obj.id);
 			//If the object being updated has a join column, an old object might have been joined with it.  We
 			//Dirty those assocs.
-			for (SimpleMAGAAssociation assoc : affectedAssociations) {
+			for (MAGAAssociation assoc : affectedAssociations) {
 				biDirectionalDirty(obj, assoc);
 			}
 			//Update the db after we've done our dirtying.
@@ -50,7 +50,7 @@ public class ObjectUpdate {
 		}
 		
 		cache.dirtyObject(obj);
-		for (SimpleMAGAAssociation assoc : affectedAssociations) {
+		for (MAGAAssociation assoc : affectedAssociations) {
 			long val = -1;
 			long oldVal = -1;
 			val = (long) ReflectionUtils.getFieldValue(obj, assoc.class2Column());
@@ -66,7 +66,7 @@ public class ObjectUpdate {
 		HistoryUtil.recordHistory(oldObj, obj, loadPathFactory, dataSource);
 	}
 
-	private void biDirectionalDirty(MAGAObject obj, SimpleMAGAAssociation association) {
+	private void biDirectionalDirty(MAGAObject obj, MAGAAssociation association) {
 		
 		AssociationLoad ap = loadPathFactory.getNewAssociationLoad();
 		List<MAGAObject> otherSide = ap.load(obj, association);

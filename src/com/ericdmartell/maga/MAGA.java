@@ -7,7 +7,7 @@ import java.util.concurrent.ForkJoinPool;
 import javax.sql.DataSource;
 
 import com.ericdmartell.cache.Cache;
-import com.ericdmartell.maga.associations.SimpleMAGAAssociation;
+import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
 import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGALoadTemplate;
@@ -50,27 +50,27 @@ public class MAGA {
 		loadPathFactory.getNewObjectDelete().delete(toDelete);
 	}
 
-	public List<MAGAObject> loadAssociatedObjects(MAGAObject baseObject, SimpleMAGAAssociation association) {
+	public List<MAGAObject> loadAssociatedObjects(MAGAObject baseObject, MAGAAssociation association) {
 		throwExceptionIfObjectUnsaved(baseObject);
 		return loadPathFactory.getNewAssociationLoad().load(baseObject, association);
 	}
 
 	public void addAssociation(MAGAObject baseObject, MAGAObject otherObject,
-			SimpleMAGAAssociation association) {
+			MAGAAssociation association) {
 		throwExceptionIfCantSave(baseObject);
 		throwExceptionIfCantSave(otherObject);
 		throwExceptionIfObjectUnsaved(baseObject);
 		loadPathFactory.getNewAssociationAdd().add(baseObject, otherObject, association);
 	}
 
-	public void deleteAssociations(MAGAObject baseObject, SimpleMAGAAssociation association) {
+	public void deleteAssociations(MAGAObject baseObject, MAGAAssociation association) {
 		throwExceptionIfCantSave(baseObject);
 		throwExceptionIfObjectUnsaved(baseObject);
 		loadPathFactory.getNewAssociationDelete().delete(baseObject, association);
 	}
 
 	public void deleteAssociation(MAGAObject baseObject, MAGAObject otherObject,
-			SimpleMAGAAssociation association) {
+			MAGAAssociation association) {
 		throwExceptionIfCantSave(baseObject);
 		throwExceptionIfCantSave(otherObject);
 		throwExceptionIfObjectUnsaved(baseObject);

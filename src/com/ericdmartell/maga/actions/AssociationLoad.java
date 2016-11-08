@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 
 import org.reflections.Reflections;
 
-import com.ericdmartell.maga.associations.SimpleMAGAAssociation;
+import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
 import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGALoadTemplate;
@@ -36,7 +36,7 @@ public class AssociationLoad {
 		this.template = template;
 	}
 
-	public List<MAGAObject> load(MAGAObject obj, SimpleMAGAAssociation association) {
+	public List<MAGAObject> load(MAGAObject obj, MAGAAssociation association) {
 		// Before even going to memcached, did this object come out of a
 		// template? If so we have associations stored on the object itself.
 		List<MAGAObject> ret = cache.getAssociatedObjectsForTemplate(obj, association);
@@ -61,15 +61,15 @@ public class AssociationLoad {
 
 	}
 
-	private List<Long> loadIds(MAGAObject obj, SimpleMAGAAssociation association) {
+	private List<Long> loadIds(MAGAObject obj, MAGAAssociation association) {
 		// Memcached
 		List<Long> ret = cache.getAssociatedIds(obj, association);
 
 		if (ret == null) {
 			// Go to the database.
-			if (association.type() == SimpleMAGAAssociation.MANY_TO_MANY) {
+			if (association.type() == MAGAAssociation.MANY_TO_MANY) {
 				ret = getManyToManyFromDB(obj, association);
-			} else if (association.type() == SimpleMAGAAssociation.ONE_TO_MANY) {
+			} else if (association.type() == MAGAAssociation.ONE_TO_MANY) {
 				ret = getOneToManyFromDB(obj, association);
 			}
 			cache.setAssociatedIds(obj, association, ret, template);
@@ -77,7 +77,7 @@ public class AssociationLoad {
 		return ret;
 	}
 
-	private List<Long> getOneToManyFromDB(MAGAObject obj, SimpleMAGAAssociation association) {
+	private List<Long> getOneToManyFromDB(MAGAObject obj, MAGAAssociation association) {
 		List<Long> ret = new ArrayList<>();
 
 		String query;
@@ -118,7 +118,7 @@ public class AssociationLoad {
 		return ret;
 	}
 
-	private List<Long> getManyToManyFromDB(MAGAObject obj, SimpleMAGAAssociation association) {
+	private List<Long> getManyToManyFromDB(MAGAObject obj, MAGAAssociation association) {
 		List<Long> ret = new ArrayList<>();
 		
 		String tableName = association.class1().getSimpleName() + "_to_" + association.class2().getSimpleName();
@@ -149,18 +149,18 @@ public class AssociationLoad {
 
 	
 	//When we're deleting objects, or modifying objects with join columns, we need to dirty/delete assocs
-	private Map<Class<MAGAObject>, List<SimpleMAGAAssociation>> classToLoadColumnAssocs = null;
-	private Map<Class<MAGAObject>, List<SimpleMAGAAssociation>> classToAssocs = null;
+	private Map<Class<MAGAObject>, List<MAGAAssociation>> classToLoadColumnAssocs = null;
+	private Map<Class<MAGAObject>, List<MAGAAssociation>> classToAssocs = null;
 	
 	private void initializeClassToAssocs() {
 		try {
 			classToAssocs = new THashMap<>();
 			classToLoadColumnAssocs = new THashMap<>();
 			Reflections reflections = new Reflections("");
-			List<Class<SimpleMAGAAssociation>> associations = new ArrayList(
-					reflections.getSubTypesOf(SimpleMAGAAssociation.class));
-			for (Class<SimpleMAGAAssociation> association : associations) {
-				SimpleMAGAAssociation assoc = association.newInstance();
+			List<Class<MAGAAssociation>> associations = new ArrayList(
+					reflections.getSubTypesOf(MAGAAssociation.class));
+			for (Class<MAGAAssociation> association : associations) {
+				MAGAAssociation assoc = association.newInstance();
 				
 				if (!classToAssocs.containsKey(assoc.class1())) {
 					classToAssocs.put(assoc.class1(), new ArrayList<>());
@@ -172,7 +172,7 @@ public class AssociationLoad {
 				}
 				classToAssocs.get(assoc.class2()).add(assoc);
 				
-				if (assoc.type() == SimpleMAGAAssociation.ONE_TO_MANY) {
+				if (assoc.type() == MAGAAssociation.ONE_TO_MANY) {
 					if (!classToLoadColumnAssocs.containsKey(assoc.class2())) {
 						classToLoadColumnAssocs.put(assoc.class2(), new ArrayList<>());
 					}
@@ -198,7 +198,7 @@ public class AssociationLoad {
 
 	
 
-	public List loadWhereHasClass(Class<SimpleMAGAAssociation> clazz) {
+	public List loadWhereHasClass(Class<MAGAAssociation> clazz) {
 		if (classToAssocs == null) {
 			initializeClassToAssocs();
 		}

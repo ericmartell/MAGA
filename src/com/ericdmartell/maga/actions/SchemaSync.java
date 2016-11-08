@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 
 import org.reflections.Reflections;
 
-import com.ericdmartell.maga.associations.SimpleMAGAAssociation;
+import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
 import com.ericdmartell.maga.objects.MAGAObject;
 import com.ericdmartell.maga.utils.JDBCUtil;
@@ -108,14 +108,14 @@ public class SchemaSync {
 				cache.flush();
 
 			}
-			List<Class<SimpleMAGAAssociation>> associationsClasses = new ArrayList(
-					reflections.getSubTypesOf(SimpleMAGAAssociation.class));
-			List<SimpleMAGAAssociation> associations = new ArrayList<>();
-			for (Class<SimpleMAGAAssociation> clazz : associationsClasses) {
+			List<Class<MAGAAssociation>> associationsClasses = new ArrayList(
+					reflections.getSubTypesOf(MAGAAssociation.class));
+			List<MAGAAssociation> associations = new ArrayList<>();
+			for (Class<MAGAAssociation> clazz : associationsClasses) {
 				associations.add(clazz.newInstance());
 			}
-			for (SimpleMAGAAssociation association : associations) {
-				if (association.type() == SimpleMAGAAssociation.ONE_TO_MANY) {
+			for (MAGAAssociation association : associations) {
+				if (association.type() == MAGAAssociation.ONE_TO_MANY) {
 					String tableName = association.class2().getSimpleName();
 					ResultSet rst = JDBCUtil.executeQuery(connection, "describe " + tableName);
 					Map<String, String> columnsToTypes = new THashMap<>();

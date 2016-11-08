@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import com.ericdmartell.maga.associations.SimpleMAGAAssociation;
+import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
 import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGAObject;
@@ -24,8 +24,8 @@ public class AssociationDelete {
 		this.cache = cache;
 	}
 
-	public void delete(MAGAObject obj, SimpleMAGAAssociation association) {
-		if (association.type() == SimpleMAGAAssociation.MANY_TO_MANY) {
+	public void delete(MAGAObject obj, MAGAAssociation association) {
+		if (association.type() == MAGAAssociation.MANY_TO_MANY) {
 			deleteAllManyToManyAssocs(obj, association);
 		} else {
 			if (obj.getClass() == association.class1()) {
@@ -36,7 +36,7 @@ public class AssociationDelete {
 		}
 	}
 
-	private void deleteAllManyToManyAssocs(MAGAObject obj, SimpleMAGAAssociation association) {
+	private void deleteAllManyToManyAssocs(MAGAObject obj, MAGAAssociation association) {
 		// We need to dirty all associations that include our object... all
 		// these objects have an association pointing at our object.
 		List<MAGAObject> objectsOnTheOtherSide = loadPathFactory.getNewAssociationLoad().load(obj, association);
@@ -53,7 +53,7 @@ public class AssociationDelete {
 		}
 	}
 
-	private void deleteOneToManyAssocsFromTheOneSide(MAGAObject obj, SimpleMAGAAssociation association) {
+	private void deleteOneToManyAssocsFromTheOneSide(MAGAObject obj, MAGAAssociation association) {
 		// We need to dirty all associations that include our object... all
 		// these objects have an association pointing at our object.
 		List<MAGAObject> objectsOnTheOtherSide = loadPathFactory.getNewAssociationLoad().load(obj, association);
@@ -74,7 +74,7 @@ public class AssociationDelete {
 
 	}
 
-	private void deleteOneToManyAssocsFromTheManySide(MAGAObject obj, SimpleMAGAAssociation association) {
+	private void deleteOneToManyAssocsFromTheManySide(MAGAObject obj, MAGAAssociation association) {
 		// We need to dirty all associations that include our object... since we're on the many side, it should
 		// just be one object (or 0 if there was no association in the first place).
 		List<MAGAObject> objectsOnTheOtherSide = loadPathFactory.getNewAssociationLoad().load(obj, association);
@@ -92,8 +92,8 @@ public class AssociationDelete {
 		}
 	}
 
-	public void delete(MAGAObject obj, MAGAObject obj2, SimpleMAGAAssociation association) {
-		if (association.type() == SimpleMAGAAssociation.MANY_TO_MANY) {
+	public void delete(MAGAObject obj, MAGAObject obj2, MAGAAssociation association) {
+		if (association.type() == MAGAAssociation.MANY_TO_MANY) {
 			deleteSpecificManyToMany(obj, obj2, association);
 		} else {
 			if (obj.getClass() == association.class1()) {
@@ -104,7 +104,7 @@ public class AssociationDelete {
 		}
 	}
 	
-	private void deleteSpecificManyToMany(MAGAObject obj, MAGAObject obj2, SimpleMAGAAssociation association) {
+	private void deleteSpecificManyToMany(MAGAObject obj, MAGAObject obj2, MAGAAssociation association) {
 		//DB Part
 		JDBCUtil.executeUpdate("delete from " + association.class1().getSimpleName() + "_to_"
 				+ association.class2().getSimpleName() + " where " + obj.getClass().getSimpleName() + " = " + obj.id
@@ -114,7 +114,7 @@ public class AssociationDelete {
 		cache.dirtyAssoc(obj2, association);
 	}
 	
-	private void deleteSpecificOneToManyFromOneSide(MAGAObject obj, MAGAObject obj2, SimpleMAGAAssociation association) {
+	private void deleteSpecificOneToManyFromOneSide(MAGAObject obj, MAGAObject obj2, MAGAAssociation association) {
 		//We record history since we're change an actual object's field.
 		MAGAObject oldObject = loadPathFactory.getNewObjectLoad().load(obj2.getClass(), obj2.id);
 		

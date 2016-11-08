@@ -1,6 +1,6 @@
 package com.ericdmartell.maga.associations;
 
-public abstract class SimpleMAGAAssociation {
+public abstract class MAGAAssociation {
 	public static final int MANY_TO_MANY = 1;
 	public static final int ONE_TO_MANY = 2;
 	
@@ -29,7 +29,7 @@ public abstract class SimpleMAGAAssociation {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SimpleMAGAAssociation other = (SimpleMAGAAssociation) obj;
+		MAGAAssociation other = (MAGAAssociation) obj;
 		if (class1() == null) {
 			if (other.class1() != null)
 				return false;

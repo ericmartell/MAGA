@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.ericdmartell.cache.Cache;
-import com.ericdmartell.maga.associations.SimpleMAGAAssociation;
+import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.objects.MAGALoadTemplate;
 import com.ericdmartell.maga.objects.MAGAObject;
 
@@ -72,16 +72,16 @@ public class MAGACache implements Cache {
 		return new ArrayList(ret.values());
 	}
 
-	public final List<Long> getAssociatedIds(MAGAObject obj, SimpleMAGAAssociation association) {
+	public final List<Long> getAssociatedIds(MAGAObject obj, MAGAAssociation association) {
 		return (List<Long>) get(getAssocKey(obj, association));
 	}
 
-	public final String getAssocKey(MAGAObject obj, SimpleMAGAAssociation association) {
+	public final String getAssocKey(MAGAObject obj, MAGAAssociation association) {
 		return association.class1().getSimpleName() + ":" + association.class2().getSimpleName() + ":"
 				+ obj.getClass().getSimpleName() + ":" + obj.id;
 	}
 
-	public final void setAssociatedIds(MAGAObject obj, SimpleMAGAAssociation association, List<Long> associations,
+	public final void setAssociatedIds(MAGAObject obj, MAGAAssociation association, List<Long> associations,
 			 MAGALoadTemplate dependentTemplate) {
 		set(getAssocKey(obj, association), associations);
 		if (dependentTemplate != null) {
@@ -89,7 +89,7 @@ public class MAGACache implements Cache {
 		}
 	}
 
-	public final void addTemplateDependencyOnAssoc(MAGAObject simpleORMObject, SimpleMAGAAssociation association,
+	public final void addTemplateDependencyOnAssoc(MAGAObject simpleORMObject, MAGAAssociation association,
 			MAGALoadTemplate dependentTemplate) {
 		String dependencyKey = getAssocKey(simpleORMObject, association) + ":template_dependencies";
 		List<String> existingTemplateKeys = (List<String>) get(dependencyKey);
@@ -104,7 +104,7 @@ public class MAGACache implements Cache {
 		}
 	}
 
-	public final void dirtyAssoc(MAGAObject obj, SimpleMAGAAssociation association) {
+	public final void dirtyAssoc(MAGAObject obj, MAGAAssociation association) {
 		String key = getAssocKey(obj, association);
 		dirty(key);
 		String dependencyKey = key + ":template_dependencies";
@@ -132,7 +132,7 @@ public class MAGACache implements Cache {
 
 	}
 
-	public final void cacheAssociatedObjectsForTemplate(MAGAObject baseObject, SimpleMAGAAssociation association,
+	public final void cacheAssociatedObjectsForTemplate(MAGAObject baseObject, MAGAAssociation association,
 			List<MAGAObject> associatedObjects) {
 		if (baseObject.templateAssociations == null) {
 			baseObject.templateAssociations = new THashMap<>();
@@ -142,7 +142,7 @@ public class MAGACache implements Cache {
 	}
 
 	public final List<MAGAObject> getAssociatedObjectsForTemplate(MAGAObject baseObject,
-			SimpleMAGAAssociation association) {
+			MAGAAssociation association) {
 		if (baseObject.templateAssociations == null) {
 			return null;
 		}
