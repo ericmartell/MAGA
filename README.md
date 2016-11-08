@@ -101,9 +101,9 @@ MAGA has the following methods:
 * **deleteAssociation(SimpleORMObject baseObject, SimpleORMObject otherObject, SimpleORMAssociation association)**: Removes the link between the provided objects by the association.
 * **deleteAssociations(SimpleORMObject baseObject, SimpleORMAssociation association)**: Removes the link between the provided object and all other objects defined by the association.
 * **schemaSync()**:  Updates the underlying database to match your MAGA class definitions.
+* **loadTemplate(SimpleORMLoadTemplate template, Object... args)**: Uses a Load Template to return objects.
 
-**Using SimpleORMLoadTemplates**
-
+# Using SimpleORMLoadTemplates
 When every object and association exists in your cache, you'll never be going to your database, but you'll be making a lot of trips to your cache.  Considering the network overhead of accessing remote caches like Memcached, deserialization between the cache service and the JVM, etc, you might have a desire to further optimize your loads.
 
 When there is a common load in place that returns "a graph of objects and associations" (for lack of a better description), you can save this as a single entry in the cache, in addition to all the individual entries for each object and association.  We call this a **Load Template**.
@@ -114,12 +114,12 @@ After the first run, the entire graph of returned data will be cached as a singl
 
 When any dependent object or association is changed, the template will reload and return valid data.
 
-**Object History**
+# Object History
 
 For every object MAGA manages, we create a table called (Object_name)_history, which shows every write to the object and what changed.  This is done off-thread, so you don't need to worry about the perf hit.
 
 
-**Minutiae**
+# Minutiae
 
 MAGA is a lazily populated cache.  When you load Objects, we check the cache, then the database (which then populates the cache).  When you load associations, we check the cache for a list of ids of the remote class defined by the association.  If we miss, we load the ids out of database, and save them in cache.  We then load all objects for the ids using the object load path.
 
