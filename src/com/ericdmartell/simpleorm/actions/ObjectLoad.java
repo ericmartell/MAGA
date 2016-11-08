@@ -38,7 +38,7 @@ public class ObjectLoad {
 		if (ret != null) {
 			return ret;
 		} else {
-			ret = template.run(new SimpleORM(dataSource, cache, null, template), args);
+			ret = template.run(new SimpleORM(dataSource, cache, template), args);
 			// save our result for next fetch.
 			cache.set(template.getKey(), ret);
 			return ret;

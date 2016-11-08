@@ -21,7 +21,7 @@ public class SimpleORM {
 		loadPathFactory = new ActionFactory(dataSource, SimpleORMCache.getInstance(cache), null);
 	}
 	
-	public SimpleORM(DataSource dataSource, Cache cache, ForkJoinPool pool, SimpleORMLoadTemplate template) {
+	public SimpleORM(DataSource dataSource, Cache cache, SimpleORMLoadTemplate template) {
 		loadPathFactory = new ActionFactory(dataSource, SimpleORMCache.getInstance(cache), template);
 	}
 	
