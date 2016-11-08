@@ -114,8 +114,9 @@ After the first run, the entire graph of returned data will be cached as a singl
 
 When any dependent object or association is changed, the template will reload and return valid data.
 
-**Minutiae**
-Object history.  For every object MAGA manages, we create a table called (Object_name)_history, which shows every write to the object and what changed.  This is done off-thread, so you don't need to worry about the perf hit.
+**Object History**
+
+For every object MAGA manages, we create a table called (Object_name)_history, which shows every write to the object and what changed.  This is done off-thread, so you don't need to worry about the perf hit.
 
 
 **Minutiae**
