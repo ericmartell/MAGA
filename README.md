@@ -29,11 +29,11 @@ MAGA deliniates data into two categories:  **Objects** and **associations**.  Ob
 
 **Creating Objects**
 
-To create an object (backed in your database with the same name) simply extend the *SimpleORMObject* class.  Every object automatically has a "long" id field.  You can annotate your fields with @SimpleORMField to automatically create more fields that synchronize between your object and the database.
+To create an object (backed in your database with the same name) simply extend the *SimpleORMObject* class.  Every object automatically has a "long" id field.  You can annotate your fields with @SimpleORMField to automatically create more fields that synchronize between your object and the database.  Options to add an index to the field within the database is also available.
 
 ```java
 public class Obj1 extends SimpleORMObject {
-	@SimpleORMField
+	@SimpleORMField(isIndex=true)
 	private String field1;
   
   public String getField1() {
@@ -45,4 +45,40 @@ public class Obj1 extends SimpleORMObject {
   }
 }
 
+```
+
+
+**Creating Associations**
+
+To create an association, extent *SimpleORMAssociation*.  Every association must provide the following:
+
+* **class1**: One of the objects being joined.  In the case of the one-to-many join, **this must be the object without a join column**.
+* **class2**: The other object being joined.  In the case of the one-to-many join, **this must be the object with a join column**.
+* **type**: Must be either SimpleORMAssociation.MANY_TO_MANY or SimpleORMAssociation.ONE_TO_MANY.  MANY_TO_MANY use an intermediate join table.  ONE_TO_MANY use a column on the class2 object with the id of the object in class1.
+* **class2Column**:  The name of the join column on the class2 object in the join is SimpleORMAssociation.ONE_TO_MANY.
+
+```java
+public class TestAssoc extends SimpleORMAssociation {
+
+	@Override
+	public Class class1() {
+		return Obj1.class;
+	}
+
+	@Override
+	public Class class2() {
+		return Obj2.class;
+	}
+
+	@Override
+	public int type() {
+		return SimpleORMAssociation.MANY_TO_MANY;
+	}
+
+	@Override
+	public String class2Column() {
+		return "joinColumn";
+	}
+
+}
 ```
