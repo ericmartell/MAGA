@@ -20,8 +20,8 @@ MAGA provides the following:
 * **Object histories**: Every creation, save, or delete results in a row in an ancillary table with the changed fields on the object, the stack that saved the object, and a timestamp.
 * **Cache**: Every load, and every load from one object to another is cached for faster loads.  The cache synchronizes with the database for every operation, so you never have to worry about stale data.
 * **Caches on Caches**: Define load templates of data you'd like to retrieve (usually an entire page of data), and you can get it back with a single cache hit.  Load templates are also automatically synchronized with your database.
-* **Use the Tech You Like**: MAGA lets you choose your own cache (I have a Memcached and HashMap cache included in the test source), and your own RDBMS like MySQL or Postgres.
-
+* **Use the Tech You Like**: MAGA lets you choose your own cache (I have a Memcached and HashMap cache included in the test source), and your own RDBMS like MySQL or Postgres.  "Something Something Something **dependency injection** something something something."  https://www.youtube.com/watch?v=4APcgsRdW6w
+* **Unchecked Exceptions**: Because it's 2016.
 
 # Usage
 
