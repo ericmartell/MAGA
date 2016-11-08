@@ -29,11 +29,11 @@ MAGA deliniates data into two categories:  **Objects** and **associations**.  Ob
 
 **Creating Objects**
 
-To create an object (backed in your database with the same name) simply extend the *SimpleORMObject* class.  Every object automatically has a "long" id field.  You can annotate your fields with @SimpleORMField to automatically create more fields that synchronize between your object and the database.  Options to add an index to the field within the database is also available.
+To create an object (backed in your database with the same name) simply extend the *MAGAObject* class.  Every object automatically has a "long" id field.  You can annotate your fields with @MAGAORMField to automatically create more fields that synchronize between your object and the database.  Options to add an index to the field within the database is also available.
 
 ```java
-public class Obj1 extends SimpleORMObject {
-	@SimpleORMField(isIndex=true)
+public class Obj1 extends MAGAObject {
+	@MAGAField(isIndex=true)
 	private String field1;
   
   public String getField1() {
@@ -50,15 +50,15 @@ public class Obj1 extends SimpleORMObject {
 
 **Creating Associations**
 
-To create an association, extent *SimpleORMAssociation*.  Every association must provide the following:
+To create an association, extent *MAGAAssociation*.  Every association must provide the following:
 
 * **class1**: One of the objects being joined.  In the case of the one-to-many join, **this must be the object without a join column**.
 * **class2**: The other object being joined.  In the case of the one-to-many join, **this must be the object with a join column**.
-* **type**: Must be either SimpleORMAssociation.MANY_TO_MANY or SimpleORMAssociation.ONE_TO_MANY.  MANY_TO_MANY use an intermediate join table.  ONE_TO_MANY use a column on the class2 object with the id of the object in class1.
-* **class2Column**:  The name of the join column on the class2 object in the join is SimpleORMAssociation.ONE_TO_MANY.
+* **type**: Must be either MAGAAssociation.MANY_TO_MANY or MAGAAssociation.ONE_TO_MANY.  MANY_TO_MANY use an intermediate join table.  ONE_TO_MANY use a column on the class2 object with the id of the object in class1.
+* **class2Column**:  The name of the join column on the class2 object in the join is MAGAAssociation.ONE_TO_MANY.
 
 ```java
-public class TestAssoc extends SimpleORMAssociation {
+public class TestAssoc extends MAGAAssociation {
 
 	@Override
 	public Class class1() {
@@ -72,7 +72,7 @@ public class TestAssoc extends SimpleORMAssociation {
 
 	@Override
 	public int type() {
-		return SimpleORMAssociation.MANY_TO_MANY;
+		return MAGAAssociation.MANY_TO_MANY;
 	}
 
 	@Override
@@ -94,16 +94,16 @@ MAGA has the following methods:
 * **load(Class clazz, Collection<Long> ids)**: Returns list of objects of Class with provided ids.
 * **loadAll(Class clazz)**: Returns list of all objects of Class.
 * **loadAll(Class clazz)**: Returns list of all objects of Class.
-* **save(SimpleORMObject toSave)**: Persists object state to database.
-* **delete(SimpleORMObject toDelete)**: Removes object from database.
-* **loadAssociatedObjects(SimpleORMObject baseObject, SimpleORMAssociation association)**: Taking an object and association, returns a list of objects that are associated with the provided object via the association.
-* **addAssociation(SimpleORMObject baseObject, SimpleORMObject otherObject, SimpleORMAssociation association)**: Adds an association to the database between the two provided objects via the definition provided by the association object.
-* **deleteAssociation(SimpleORMObject baseObject, SimpleORMObject otherObject, SimpleORMAssociation association)**: Removes the link between the provided objects by the association.
-* **deleteAssociations(SimpleORMObject baseObject, SimpleORMAssociation association)**: Removes the link between the provided object and all other objects defined by the association.
+* **save(MAGAObject toSave)**: Persists object state to database.
+* **delete(MAGAObject toDelete)**: Removes object from database.
+* **loadAssociatedObjects(MAGAObject baseObject, MAGAAssociation association)**: Taking an object and association, returns a list of objects that are associated with the provided object via the association.
+* **addAssociation(MAGAObject baseObject, MAGAObject otherObject, MAGAAssociation association)**: Adds an association to the database between the two provided objects via the definition provided by the association object.
+* **deleteAssociation(MAGAObject baseObject, MAGAObject otherObject, MAGAAssociation association)**: Removes the link between the provided objects by the association.
+* **deleteAssociations(MAGAObject baseObject, MAGAAssociation association)**: Removes the link between the provided object and all other objects defined by the association.
 * **schemaSync()**:  Updates the underlying database to match your MAGA class definitions.
-* **loadTemplate(SimpleORMLoadTemplate template, Object... args)**: Uses a Load Template to return objects.
+* **loadTemplate(MAGALoadTemplate template, Object... args)**: Uses a Load Template to return objects.
 
-# Using SimpleORMLoadTemplates
+# Using MAGALoadTemplates
 When every object and association exists in your cache, you'll never be going to your database, but you'll be making a lot of trips to your cache.  Considering the network overhead of accessing remote caches like Memcached, deserialization between the cache service and the JVM, etc, you might have a desire to further optimize your loads.
 
 When there is a common load in place that returns "a graph of objects and associations" (for lack of a better description), you can save this as a single entry in the cache, in addition to all the individual entries for each object and association.  We call this a **Load Template**.
