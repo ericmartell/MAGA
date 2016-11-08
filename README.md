@@ -20,5 +20,29 @@ MAGA provides the following:
 * **Object histories**: Every creation, save, or delete results in a row in an ancillary table with the changed fields on the object, the stack that saved the object, and a timestamp.
 * **Cache**: Every load, and every load from one object to another is cached for faster loads.  The cache synchronizes with the database for every operation, so you never have to worry about stale data.
 * **Caches on Caches**: Define load templates of data you'd like to retrieve (usually an entire page of data), and you can get it back with a single cache hit.  Load templates are also automatically synchronized with your database.
+* **Use the Tech You Like**: MAGA lets you choose your own cache (I have a Memcached and HashMap cache included in the test source), and your own RDBMS like MySQL or Postgres.
 
 
+# Usage
+
+MAGA deliniates data into two categories:  **Objects** and **associations**.  Objects store real data, and associations represent the graph between these objects.  Imagine a *House* and *Resident* class.  Both *House* and *Resident* are **Objects** whereas *House-->Resident* is an **association**.
+
+**Creating Objects**
+
+To create an object (backed in your database with the same name) simply extend the *SimpleORMObject* class.  Every object automatically has a "long" id field.  You can annotate your fields with @SimpleORMField to automatically create more fields that synchronize between your object and the database.
+
+```java
+public class Obj1 extends SimpleORMObject {
+	@SimpleORMField
+	private String field1;
+  
+  public String getField1() {
+    return field1;
+  }
+  
+  public void setField1(String field1) {
+    this.field1 = field1;
+  }
+}
+
+```
