@@ -85,7 +85,7 @@ public class TestAssoc extends MAGAAssociation {
 **Using MAGA in Application Code**
 
 ```java
-SimpleORM orm = new SimpleORM(dataSource, cache);
+MAGA orm = new MAGA(dataSource, cache);
 ```
 Where *dataSource* is a *javax.sql.DataSource* and cache is a *com.ericdmartell.cache.Cache*, an abstract class implemented with whatever technology you'd like.  I've provided a Memcached and Java HashMap implementation.
 
@@ -108,7 +108,7 @@ When every object and association exists in your cache, you'll never be going to
 
 When there is a common load in place that returns "a graph of objects and associations" (for lack of a better description), you can save this as a single entry in the cache, in addition to all the individual entries for each object and association.  We call this a **Load Template**.
 
-To create a load template, extent SimpleORMLoadTemplate and implement the getKey() and run() methods.  Note that run can accept any number of parameters.  GetKey should be unique to each graph of returned data.  IE, if have a site that displays restaurant menus, your key would likely end up being "Menu" + (restaurant id), and would return all categories, menu items, etc.
+To create a load template, extent MAGALoadTemplate and implement the getKey() and run() methods.  Note that run can accept any number of parameters.  GetKey should be unique to each graph of returned data.  IE, if have a site that displays restaurant menus, your key would likely end up being "Menu" + (restaurant id), and would return all categories, menu items, etc.
 
 After the first run, the entire graph of returned data will be cached as a single entry in the cache.  This means if you load out the template again, all object loads and association loads that existed within the original load of the template will require no farther trips to the cache or database.
 
