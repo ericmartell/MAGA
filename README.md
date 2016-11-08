@@ -88,7 +88,7 @@ SimpleORM orm = new SimpleORM(dataSource, cache);
 ```
 Where *dataSource* is a *javax.sql.DataSource* and cache is a *com.ericdmartell.cache.Cache*, an abstract class implemented with whatever technology you'd like.  I've provided a Memcached and Java HashMap implementation.
 
-orm has the following methods:
+MAGA has the following methods:
 * **load(Class clazz, long id)**: Returns object of Class with id.
 * **load(Class clazz, Collection<Long> ids)**: Returns list of objects of Class with provided ids.
 * **loadAll(Class clazz)**: Returns list of all objects of Class.
@@ -101,3 +101,20 @@ orm has the following methods:
 * **deleteAssociations(SimpleORMObject baseObject, SimpleORMAssociation association)**: Removes the link between the provided object and all other objects defined by the association.
 * **schemaSync()**:  Updates the underlying database to match your MAGA class definitions.
 
+**Using SimpleORMLoadTemplates**
+When every object and association exists in your cache, you'll never be going to your database, but you'll be making a lot of trips to your cache.  Considering the network overhead of accessing remote caches like Memcached, deserialization between the cache service and the JVM, etc, you might have a desire to further optimize your loads.
+
+When there is a common load in place that returns "a graph of objects and associations" (for lack of a better description), you can save this as a single entry in the cache, in addition to all the individual entries for each object and association.  We call this a **Load Template**.
+
+To create a load template, extent SimpleORMLoadTemplate and implement the getKey() and run() methods.  Note that run can accept any number of parameters.  GetKey should be unique to each graph of returned data.  IE, if have a site that displays restaurant menus, your key would likely end up being "Menu" + (restaurant id), and would return all categories, menu items, etc.
+
+After the first run, the entire graph of returned data will be cached as a single entry in the cache.  This means if you load out the template again, all object loads and association loads that existed within the original load of the template will require no farther trips to the cache or database.
+
+When any dependent object or association is changed, the template will reload and return valid data.
+
+**Minutiae**
+MAGA is a lazily populated cache.  When you load Objects, we check the cache, then the database (which then populates the cache).  When you load associations, we check the cache for a list of ids of the remote class defined by the association.  If we miss, we load the ids out of database, and save them in cache.  We then load all objects for the ids using the object load path.
+
+In some cases, updating fields within an object will change associations.  For instance, if there is a one-to-many join with an object having a field otherObjectId, changing the id and saving will implicitly change this object's associations.  This is taken care of internally... there is no need for manual updating of the object's associations.  Likewise, updating an object's associations will automatically change all of its fields within objects in scope via reflection.  The goal here is to make this totally invisible to the programmer.
+
+This cache is going to be more effective in a read-intensive than a write-intensive environment.  Writes typically result in multiple dirties, but at peak, the cache can have over a 90% hit ratio as long as your data doesn't churn like crazy.  If you're looking to build a social network, this might not be for you.  If you're looking for a simple ORM for ecommerce, you're probably a lot closer to the ideal use case.  Templates are especially ideal for displaying high read/low write data.
