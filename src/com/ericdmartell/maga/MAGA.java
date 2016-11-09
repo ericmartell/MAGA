@@ -2,7 +2,6 @@ package com.ericdmartell.maga;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
 
 import javax.sql.DataSource;
 
@@ -25,15 +24,15 @@ public class MAGA {
 		loadPathFactory = new ActionFactory(dataSource, MAGACache.getInstance(cache), template);
 	}
 	
-	public MAGAObject load(Class clazz, long id) {		
-		return loadPathFactory.getNewObjectLoad().load(clazz, id);
+	public <T extends MAGAObject> T load(Class<T> clazz, long id) {		
+		return clazz.cast(loadPathFactory.getNewObjectLoad().load(clazz, id));
 	}
 
-	public List<MAGAObject> load(Class clazz, Collection<Long> ids) {
-		return loadPathFactory.getNewObjectLoad().load(clazz, ids);
+	public <T extends MAGAObject> List<T> load(Class<T> clazz, Collection<Long> ids) {
+		return (List<T>) loadPathFactory.getNewObjectLoad().load(clazz, ids);
 	}
-	public List<MAGAObject> loadAll(Class clazz) {
-		return loadPathFactory.getNewObjectLoad().loadAll(clazz);
+	public <T extends MAGAObject> List<T> loadAll(Class<T> clazz) {
+		return (List<T>) loadPathFactory.getNewObjectLoad().loadAll(clazz);
 	}
 	public List<MAGAObject> loadTemplate(MAGALoadTemplate template, Object... args) {
 		return loadPathFactory.getNewObjectLoad().loadTemplate(template, args);

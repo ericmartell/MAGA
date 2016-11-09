@@ -2,6 +2,7 @@ package com.ericdmartell.maga.actions;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class SchemaSync {
 	}
 
 	public void go() {
+		String schema = JDBCUtil.executeQueryAndReturnSingleString(dataSource, "select database()");
 		Connection connection = JDBCUtil.getConnection(dataSource);
 		try {
 			cache.flush();
@@ -40,7 +42,7 @@ public class SchemaSync {
 				String tableName = clazz.getSimpleName();
 
 				boolean tableExists = JDBCUtil.executeQueryAndReturnSingleLong(dataSource,
-						"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?)", tableName) == 1;
+						"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?) and (TABLE_SCHEMA = ?)", tableName, schema) == 1;
 				if (!tableExists) {
 					JDBCUtil.executeUpdate(
 							"create table " + tableName + "(id int(11) not null AUTO_INCREMENT, primary key(id))",
@@ -49,8 +51,8 @@ public class SchemaSync {
 				}
 
 				boolean historyTableExists = JDBCUtil.executeQueryAndReturnSingleLong(dataSource,
-						"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?)",
-						tableName + "_history") == 1;
+						"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?) and (TABLE_SCHEMA = ?)",
+						tableName + "_history", schema) == 1;
 				if (!historyTableExists) {
 					JDBCUtil.executeUpdate("create table " + tableName + "_history"
 							+ "(id int(11), date datetime, changes longtext, stack longtext)", dataSource);
@@ -78,6 +80,8 @@ public class SchemaSync {
 						columnType = "int(11)";
 					} else if (fieldType == BigDecimal.class) {
 						columnType = "decimal(10,2)";
+					} else if (fieldType == Date.class) {
+						columnType = "datetime";
 					} else {
 						columnType = "varchar(500)";
 					}
@@ -143,7 +147,7 @@ public class SchemaSync {
 					String tableName = association.class1().getSimpleName() + "_to_"
 							+ association.class2().getSimpleName();
 					boolean tableExists = JDBCUtil.executeQueryAndReturnSingleLong(dataSource,
-							"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?)", tableName) == 1;
+							"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?) and (TABLE_SCHEMA = ?)", tableName, schema) == 1;
 					if (!tableExists) {
 						String col1 = association.class1().getSimpleName();
 						String col2 = association.class2().getSimpleName();
