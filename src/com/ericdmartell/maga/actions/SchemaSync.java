@@ -1,10 +1,12 @@
 package com.ericdmartell.maga.actions;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +14,7 @@ import javax.sql.DataSource;
 
 import org.reflections.Reflections;
 
+import com.ericdmartell.maga.annotations.MAGAORMField;
 import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
 import com.ericdmartell.maga.objects.MAGAObject;
@@ -42,7 +45,8 @@ public class SchemaSync {
 				String tableName = clazz.getSimpleName();
 
 				boolean tableExists = JDBCUtil.executeQueryAndReturnSingleLong(dataSource,
-						"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?) and (TABLE_SCHEMA = ?)", tableName, schema) == 1;
+						"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?) and (TABLE_SCHEMA = ?)",
+						tableName, schema) == 1;
 				if (!tableExists) {
 					JDBCUtil.executeUpdate(
 							"create table " + tableName + "(id int(11) not null AUTO_INCREMENT, primary key(id))",
@@ -71,11 +75,21 @@ public class SchemaSync {
 					}
 
 				}
-				for (String columnName : ReflectionUtils.getFieldNames(clazz)) {
+				Collection<String> fieldNames = ReflectionUtils.getFieldNames(clazz);
+				for (String columnName : fieldNames) {
 					Class fieldType = ReflectionUtils.getFieldType(clazz, columnName);
 					String columnType;
+					Field field;
+					try {
+						field = clazz.getField(columnName);
+					} catch (NoSuchFieldException e) {
+						field = clazz.getDeclaredField(columnName);
+					}
 
-					if (fieldType == long.class || fieldType == int.class || fieldType == Integer.class
+					if (field.getAnnotation(MAGAORMField.class) != null
+							&& !field.getAnnotation(MAGAORMField.class).dataType().equals("")) {
+						columnType = field.getAnnotation(MAGAORMField.class).dataType();
+					} else if (fieldType == long.class || fieldType == int.class || fieldType == Integer.class
 							|| fieldType == Long.class) {
 						columnType = "int(11)";
 					} else if (fieldType == BigDecimal.class) {
@@ -147,7 +161,8 @@ public class SchemaSync {
 					String tableName = association.class1().getSimpleName() + "_to_"
 							+ association.class2().getSimpleName();
 					boolean tableExists = JDBCUtil.executeQueryAndReturnSingleLong(dataSource,
-							"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?) and (TABLE_SCHEMA = ?)", tableName, schema) == 1;
+							"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?) and (TABLE_SCHEMA = ?)",
+							tableName, schema) == 1;
 					if (!tableExists) {
 						String col1 = association.class1().getSimpleName();
 						String col2 = association.class2().getSimpleName();

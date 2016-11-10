@@ -9,4 +9,5 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface MAGAORMField {
 	public boolean isIndex() default false;
+	public String dataType() default "";
 }

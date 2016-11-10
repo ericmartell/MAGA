@@ -22,11 +22,11 @@ public class ReflectionUtils {
 
 	public static Collection<String> getFieldNames(Class clazz) {
 		// Lazily populating classesToFieldNamesAndFields since 2016.
-		if (!classesToFieldNamesAndFieldIndex.containsKey(clazz)) {
+		if (!classesToFieldNamesAndTypes.containsKey(clazz)) {
 			buildIndex(clazz);
 		}
 
-		return classesToFieldNamesAndFieldIndex.get(clazz).keySet();
+		return classesToFieldNamesAndTypes.get(clazz).keySet();
 	}
 
 	public static Class getFieldType(Class clazz, String fieldName) {
