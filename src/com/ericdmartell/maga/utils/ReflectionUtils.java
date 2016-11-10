@@ -86,7 +86,11 @@ public class ReflectionUtils {
 		for (Field field : clazz.getDeclaredFields()) {
 
 			if (field.isAnnotationPresent(MAGAORMField.class)) {
-				fieldNamesToFieldIndex.put(field.getName(), access.getIndex(field.getName()));
+				try {
+					fieldNamesToFieldIndex.put(field.getName(), access.getIndex(field.getName()));
+				} catch (RuntimeException e) {
+					
+				}
 				fieldNamesToType.put(field.getName(), field.getType());
 				MAGAORMField anno = field.getAnnotation(MAGAORMField.class);
 				if (anno.isIndex()) {
