@@ -32,53 +32,50 @@ public class ReflectionUtils {
 	public static Class getFieldType(Class clazz, String fieldName) {
 		return classesToFieldNamesAndTypes.get(clazz).get(fieldName);
 	}
-	static int count = 0;
+
 	public static boolean setFieldValue(MAGAObject obj, String fieldName, Object value) {
 		if (!classesToFieldNamesAndFieldIndex.containsKey(obj.getClass())) {
 			buildIndex(obj.getClass());
 		}
-		Integer index = classesToFieldNamesAndFieldIndex.get(obj.getClass()).get(fieldName);
-		if (index == null) {
-			return false;
-		} else {
-			
-			count++;
-			Class fieldClass = classesToFieldNamesAndTypes.get(obj.getClass()).get(fieldName);
-			if (fieldClass == Long.class || fieldClass == long.class) {
-				if (fieldClass == long.class && value == null) {
-					value = 0L;
-				}
-				classToFieldAccess.get(obj.getClass()).set(obj, index, ((Number) value).longValue());
-			} else if (fieldClass == Integer.class || fieldClass == int.class) {
-				if (fieldClass == int.class && value == null) {
-					value = 0;
-				}
-				classToFieldAccess.get(obj.getClass()).set(obj, index, ((Number) value).intValue());
-			} else {
-				classToFieldAccess.get(obj.getClass()).set(obj, index, value);
+		Class fieldClass = classesToFieldNamesAndTypes.get(obj.getClass()).get(fieldName);
+		if (fieldClass == Long.class || fieldClass == long.class) {
+			if (fieldClass == long.class && value == null) {
+				value = 0L;
 			}
-
-			return true;
+			classToFieldAccess.get(obj.getClass()).set(obj, fieldName, ((Number) value).longValue());
+		} else if (fieldClass == Integer.class || fieldClass == int.class) {
+			if (fieldClass == int.class && value == null) {
+				value = 0;
+			}
+			classToFieldAccess.get(obj.getClass()).set(obj, fieldName, ((Number) value).intValue());
+		} else {
+			classToFieldAccess.get(obj.getClass()).set(obj, fieldName, value);
 		}
+
+		return true;
+
 	}
 
 	public static Object getFieldValue(MAGAObject obj, String fieldName) {
 		if (!classesToFieldNamesAndFieldIndex.containsKey(obj.getClass())) {
 			buildIndex(obj.getClass());
 		}
-		Integer index = classesToFieldNamesAndFieldIndex.get(obj.getClass()).get(fieldName);
-		if (index == null) {
+
+		Object ret = classToFieldAccess.get(obj.getClass()).get(obj, fieldName);
+		if (ret == null) {
 			return -1L;
-		} else {
-			return classToFieldAccess.get(obj.getClass()).get(obj, index);
 		}
+		return ret;
+
 	}
+
 	public static List<String> getIndexedColumns(Class clazz) {
 		if (!classesToFieldNamesAndFieldIndex.containsKey(clazz)) {
 			buildIndex(clazz);
 		}
 		return indexes.get(clazz);
 	}
+
 	private static void buildIndex(Class clazz) {
 		FieldAccess access = FieldAccess.get(clazz);
 		classToFieldAccess.put(clazz, access);
