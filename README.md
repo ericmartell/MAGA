@@ -20,7 +20,7 @@ MAGA provides the following:
 * **Object histories**: Every creation, save, or delete results in a row in an ancillary table with the changed fields on the object, the stack that saved the object, and a timestamp.
 * **Cache**: Every load, and every load from one object to another is cached for faster loads.  The cache synchronizes with the database for every operation, so you never have to worry about stale data.
 * **Caches on Caches**: Define load templates of data you'd like to retrieve (usually an entire page of data), and you can get it back with a single cache hit.  Load templates are also automatically synchronized with your database.
-* **Use the Tech You Like**: MAGA lets you choose your own cache (I have a Memcached and HashMap cache included in the test source), and your own RDBMS like MySQL or Postgres.  "Something Something Something **dependency injection** something something something."  https://www.youtube.com/watch?v=4APcgsRdW6w
+* **Use the Tech You Like**: MAGA lets you choose your own cache (We have a Memcached and HashMap cache included in the test source), and your own RDBMS like MySQL or Postgres.  "Something Something Something **dependency injection** something something something."  https://www.youtube.com/watch?v=4APcgsRdW6w
 * **Unchecked Exceptions**: Because it's 2016.
 
 # Usage
@@ -87,7 +87,7 @@ public class TestAssoc extends MAGAAssociation {
 ```java
 MAGA orm = new MAGA(dataSource, cache);
 ```
-Where *dataSource* is a *javax.sql.DataSource* and cache is a *com.ericdmartell.cache.Cache*, an abstract class implemented with whatever technology you'd like.  I've provided a Memcached and Java HashMap implementation.
+Where *dataSource* is a *javax.sql.DataSource* and cache is a *com.ericdmartell.cache.Cache*, an abstract class implemented with whatever technology you'd like.  We've provided a Memcached and Java HashMap implementation.
 
 MAGA has the following methods:
 * **load(Class clazz, long id)**: Returns object of Class with id.
@@ -126,3 +126,7 @@ MAGA is a lazily populated cache.  When you load Objects, we check the cache, th
 In some cases, updating fields within an object will change associations.  For instance, if there is a one-to-many join with an object having a field otherObjectId, changing the id and saving will implicitly change this object's associations.  This is taken care of internally... there is no need for manual updating of the object's associations.  Likewise, updating an object's associations will automatically change all of its fields within objects in scope via reflection.  The goal here is to make this totally invisible to the programmer.
 
 This cache is going to be more effective in a read-intensive than a write-intensive environment.  Writes typically result in multiple dirties, but at peak, the cache can have over a 90% hit ratio as long as your data doesn't churn like crazy.  If you're looking to build a social network, this might not be for you.  If you're looking for a simple ORM for ecommerce, you're probably a lot closer to the ideal use case.  Templates are especially ideal for displaying high read/low write data.
+
+# Who is MAGA?
+
+MAGA's authors are Eric Martell and Alex Wyler, who co-founded @EatStreet.  Alex wrote the first version of MAGA which is live on EatStreet.com currently, and Eric worked on porting it to open source and adding templates.
