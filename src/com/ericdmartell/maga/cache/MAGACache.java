@@ -182,5 +182,6 @@ public class MAGACache implements Cache {
 		ret.delegate = cache;
 		return ret;
 	}
+
 	
 }

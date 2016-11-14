@@ -61,6 +61,13 @@ public class AssociationLoad {
 
 	}
 
+	public <T extends MAGAObject> List<T> loadWhere(Class<T> clazz, String where, Object... params) {
+		//TODO: Add some caching for this, but then we'd have to check every object add and update to see if the associated where returns new results.
+		List<Long> ids = JDBCUtil.executeQueryAndReturnLongs(dataSource, "select id from " + clazz.getName() + " where " + where, params);
+		return maga.load(clazz, ids);
+		
+	}
+	
 	private List<Long> loadIds(MAGAObject obj, MAGAAssociation association) {
 		// Memcached
 		List<Long> ret = cache.getAssociatedIds(obj, association);
@@ -208,4 +215,6 @@ public class AssociationLoad {
 		}
 		return ret;
 	}
+
+	
 }
