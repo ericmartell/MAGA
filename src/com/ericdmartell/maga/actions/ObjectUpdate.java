@@ -9,9 +9,9 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import com.ericdmartell.maga.MAGA;
 import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
-import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGAObject;
 import com.ericdmartell.maga.utils.HistoryUtil;
 import com.ericdmartell.maga.utils.JDBCUtil;
@@ -22,24 +22,24 @@ public class ObjectUpdate {
 
 	private MAGACache cache;
 	private final DataSource dataSource;
-	private ActionFactory loadPathFactory;
+	private MAGA maga;
 
-	public ObjectUpdate(DataSource dataSource, MAGACache cache, ActionFactory loadPathFactory) {
+	public ObjectUpdate(DataSource dataSource, MAGACache cache, MAGA maga) {
 		this.dataSource = dataSource;
-		this.loadPathFactory = loadPathFactory;
+		this.maga = maga;
 		this.cache = cache;
 	}
 
 	public void update(final MAGAObject obj) {
 		//Object for history
 		MAGAObject oldObj = null;
-		List<MAGAAssociation> affectedAssociations = loadPathFactory.getNewAssociationLoad()
-				.loadWhereHasClassWithJoinColumn(obj.getClass());
+		List<MAGAAssociation> affectedAssociations = maga.
+				loadWhereHasClassWithJoinColumn(obj.getClass());
 		if (obj.id == 0) {
 			//We're adding a new object.
 			addSQL(obj);
 		} else {
-			oldObj = loadPathFactory.getNewObjectLoad().load(obj.getClass(), obj.id);
+			oldObj = maga.load(obj.getClass(), obj.id);
 			//If the object being updated has a join column, an old object might have been joined with it.  We
 			//Dirty those assocs.
 			for (MAGAAssociation assoc : affectedAssociations) {
@@ -63,13 +63,12 @@ public class ObjectUpdate {
 			}
 
 		}
-		HistoryUtil.recordHistory(oldObj, obj, loadPathFactory, dataSource);
+		HistoryUtil.recordHistory(oldObj, obj, maga, dataSource);
 	}
 
 	private void biDirectionalDirty(MAGAObject obj, MAGAAssociation association) {
 		
-		AssociationLoad ap = loadPathFactory.getNewAssociationLoad();
-		List<MAGAObject> otherSide = ap.load(obj, association);
+		List<MAGAObject> otherSide = maga.loadAssociatedObjects(obj, association);
 		cache.dirtyObject(obj);
 		for (MAGAObject other : otherSide) {
 			cache.dirtyAssoc(other, association);

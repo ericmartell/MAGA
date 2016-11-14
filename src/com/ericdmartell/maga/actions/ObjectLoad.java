@@ -11,7 +11,6 @@ import javax.sql.DataSource;
 
 import com.ericdmartell.maga.MAGA;
 import com.ericdmartell.maga.cache.MAGACache;
-import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGALoadTemplate;
 import com.ericdmartell.maga.objects.MAGAObject;
 import com.ericdmartell.maga.utils.JDBCUtil;
@@ -21,15 +20,15 @@ import com.ericdmartell.maga.utils.ReflectionUtils;
 public class ObjectLoad {
 
 	private DataSource dataSource;
-	private ActionFactory loadPathFactory;
 	private MAGALoadTemplate template;
 	private MAGACache cache;
+	private MAGA maga;
 
-	public ObjectLoad(DataSource dataSource, MAGACache cache, ActionFactory loadPathFactory,
+	public ObjectLoad(DataSource dataSource, MAGACache cache, MAGA maga,
 			MAGALoadTemplate template) {
 		this.dataSource = dataSource;
 		this.cache = cache;
-		this.loadPathFactory = loadPathFactory;
+		this.maga = maga;
 		this.template = template;
 	}
 

@@ -11,9 +11,9 @@ import javax.sql.DataSource;
 
 import org.reflections.Reflections;
 
+import com.ericdmartell.maga.MAGA;
 import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
-import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGALoadTemplate;
 import com.ericdmartell.maga.objects.MAGAObject;
 import com.ericdmartell.maga.utils.JDBCUtil;
@@ -24,15 +24,15 @@ import gnu.trove.map.hash.THashMap;
 
 public class AssociationLoad {
 	private DataSource dataSource;
-	private ActionFactory loadPathFactory;
 	private MAGALoadTemplate template;
 	private MAGACache cache;
+	private MAGA maga;
 
-	public AssociationLoad(DataSource dataSource, MAGACache cache, ActionFactory loadPathFactory,
+	public AssociationLoad(DataSource dataSource, MAGACache cache, MAGA maga,
 			MAGALoadTemplate template) {
 		this.dataSource = dataSource;
 		this.cache = cache;
-		this.loadPathFactory = loadPathFactory;
+		this.maga = maga;
 		this.template = template;
 	}
 
@@ -49,7 +49,7 @@ public class AssociationLoad {
 
 			// Load ids from the other side of the assoc and then bulk load the
 			// objects themselves
-			ret = loadPathFactory.getNewObjectLoad().load(classToGet, loadIds(obj, association));
+			ret = maga.load(classToGet, loadIds(obj, association));
 
 			// If we're running in a template, cache the result on the object
 			// itself.
@@ -88,7 +88,7 @@ public class AssociationLoad {
 		} else {
 			// We're on the many side of the one-many... The join data is right
 			// on the object... But it might be dirty so we refresh
-			obj = loadPathFactory.getNewObjectLoad().load(obj.getClass(), obj.id);
+			obj = maga.load(obj.getClass(), obj.id);
 			long val = -1;
 			val = (long) ReflectionUtils.getFieldValue(obj, association.class2Column());
 
@@ -184,7 +184,7 @@ public class AssociationLoad {
 		}
 	}
 	
-	protected List loadWhereHasClassWithJoinColumn(Class clazz) {
+	public List loadWhereHasClassWithJoinColumn(Class clazz) {
 		if (classToLoadColumnAssocs == null) {
 			initializeClassToAssocs();
 		}
@@ -198,7 +198,7 @@ public class AssociationLoad {
 
 	
 
-	public List loadWhereHasClass(Class<MAGAAssociation> clazz) {
+	public List loadWhereHasClass(Class clazz) {
 		if (classToAssocs == null) {
 			initializeClassToAssocs();
 		}

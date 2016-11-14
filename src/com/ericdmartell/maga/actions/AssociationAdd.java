@@ -4,9 +4,9 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import com.ericdmartell.maga.MAGA;
 import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
-import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGAObject;
 import com.ericdmartell.maga.utils.HistoryUtil;
 import com.ericdmartell.maga.utils.JDBCUtil;
@@ -15,12 +15,12 @@ import com.ericdmartell.maga.utils.ReflectionUtils;
 public class AssociationAdd {
 
 	private DataSource dataSource;
-	private ActionFactory loadPathFactory;
 	private MAGACache cache;
+	private MAGA maga;
 
-	public AssociationAdd(DataSource dataSource, MAGACache cache, ActionFactory loadPathFactory) {
+	public AssociationAdd(DataSource dataSource, MAGACache cache, MAGA maga) {
 		this.dataSource = dataSource;
-		this.loadPathFactory = loadPathFactory;
+		this.maga = maga;
 		this.cache = cache;
 	}
 
@@ -53,14 +53,14 @@ public class AssociationAdd {
 		
 		// We need this because if we're adding an assoc for a one-many, we might be switching the assoc of the old one.
 		MAGAObject oldOneOfTheOneToMany = null;
-		List<MAGAObject> listOfOldOneOfTheOneToMany = loadPathFactory.getNewAssociationLoad().load(objOfClass2, association);
+		List<MAGAObject> listOfOldOneOfTheOneToMany = maga.loadAssociatedObjects(objOfClass2, association);
 		if (!listOfOldOneOfTheOneToMany.isEmpty()) {
 			oldOneOfTheOneToMany = listOfOldOneOfTheOneToMany.get(0);
 		}
 		
 		
 		// For historical changes.
-		MAGAObject oldObject = loadPathFactory.getNewObjectLoad().load(objOfClass2.getClass(), objOfClass2.id);
+		MAGAObject oldObject = maga.load(objOfClass2.getClass(), objOfClass2.id);
 
 		// DB/Live object field swap Part.
 		JDBCUtil.executeUpdate("update " + objOfClass2.getClass().getSimpleName() + " set " + association.class2Column()
@@ -76,6 +76,6 @@ public class AssociationAdd {
 		}
 
 		// Since we changed an actual object, we record the change.
-		HistoryUtil.recordHistory(oldObject, objOfClass2, loadPathFactory, dataSource);
+		HistoryUtil.recordHistory(oldObject, objOfClass2, maga, dataSource);
 	}
 }

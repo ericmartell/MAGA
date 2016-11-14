@@ -2,56 +2,76 @@ package com.ericdmartell.maga;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
 
 import com.ericdmartell.cache.Cache;
+import com.ericdmartell.maga.actions.AssociationAdd;
+import com.ericdmartell.maga.actions.AssociationDelete;
+import com.ericdmartell.maga.actions.AssociationLoad;
+import com.ericdmartell.maga.actions.ObjectDelete;
+import com.ericdmartell.maga.actions.ObjectLoad;
+import com.ericdmartell.maga.actions.ObjectUpdate;
+import com.ericdmartell.maga.actions.SchemaSync;
 import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
-import com.ericdmartell.maga.factory.ActionFactory;
 import com.ericdmartell.maga.objects.MAGALoadTemplate;
 import com.ericdmartell.maga.objects.MAGAObject;
 import com.ericdmartell.maga.utils.MAGAException;
 
 public class MAGA {
-	private ActionFactory loadPathFactory;
+	
+	private DataSource dataSource;
+	private MAGACache cache;
+	private MAGALoadTemplate template;
+
+	public ThreadPoolExecutor executorPool = new ThreadPoolExecutor(1, 1, 10, TimeUnit.SECONDS,
+			new ArrayBlockingQueue<Runnable>(50));
+	
 	
 	public MAGA(DataSource dataSource, Cache cache) {
-		loadPathFactory = new ActionFactory(dataSource, MAGACache.getInstance(cache), null);
+		this.dataSource = dataSource;
+		this.cache = MAGACache.getInstance(cache);
+		this.template = null;
 	}
 	
 	public MAGA(DataSource dataSource, Cache cache, MAGALoadTemplate template) {
-		loadPathFactory = new ActionFactory(dataSource, MAGACache.getInstance(cache), template);
+		this.dataSource = dataSource;
+		this.cache = MAGACache.getInstance(cache);
+		this.template = null;
 	}
 	
 	public <T extends MAGAObject> T load(Class<T> clazz, long id) {		
-		return clazz.cast(loadPathFactory.getNewObjectLoad().load(clazz, id));
+		return clazz.cast(new ObjectLoad(dataSource, cache, this, template).load(clazz, id));
 	}
 
 	public <T extends MAGAObject> List<T> load(Class<T> clazz, Collection<Long> ids) {
-		return (List<T>) loadPathFactory.getNewObjectLoad().load(clazz, ids);
+		return (List<T>) new ObjectLoad(dataSource, cache, this, template).load(clazz, ids);
 	}
 	public <T extends MAGAObject> List<T> loadAll(Class<T> clazz) {
-		return (List<T>) loadPathFactory.getNewObjectLoad().loadAll(clazz);
+		return (List<T>) new ObjectLoad(dataSource, cache, this, template).loadAll(clazz);
 	}
 	public List<MAGAObject> loadTemplate(MAGALoadTemplate template, Object... args) {
-		return loadPathFactory.getNewObjectLoad().loadTemplate(template, args);
+		return new ObjectLoad(dataSource, cache, this, template).loadTemplate(template, args);
 	}
 
 	public void save(MAGAObject toSave) {
 		throwExceptionIfCantSave(toSave);
-		loadPathFactory.getNewObjectUpdate().update(toSave);
+		new ObjectUpdate(dataSource, cache, this).update(toSave);
 	}
 
 	public void delete(MAGAObject toDelete) {
 		throwExceptionIfCantSave(toDelete);
 		throwExceptionIfObjectUnsaved(toDelete);
-		loadPathFactory.getNewObjectDelete().delete(toDelete);
+		new ObjectDelete(dataSource, cache, this).delete(toDelete);;
 	}
 
 	public List<MAGAObject> loadAssociatedObjects(MAGAObject baseObject, MAGAAssociation association) {
 		throwExceptionIfObjectUnsaved(baseObject);
-		return loadPathFactory.getNewAssociationLoad().load(baseObject, association);
+		return new AssociationLoad(dataSource, cache, this, template).load(baseObject, association);
 	}
 
 	public void addAssociation(MAGAObject baseObject, MAGAObject otherObject,
@@ -59,13 +79,13 @@ public class MAGA {
 		throwExceptionIfCantSave(baseObject);
 		throwExceptionIfCantSave(otherObject);
 		throwExceptionIfObjectUnsaved(baseObject);
-		loadPathFactory.getNewAssociationAdd().add(baseObject, otherObject, association);
+		new AssociationAdd(dataSource, cache, this).add(baseObject, otherObject, association);;
 	}
 
 	public void deleteAssociations(MAGAObject baseObject, MAGAAssociation association) {
 		throwExceptionIfCantSave(baseObject);
 		throwExceptionIfObjectUnsaved(baseObject);
-		loadPathFactory.getNewAssociationDelete().delete(baseObject, association);
+		new AssociationDelete(dataSource, cache, this).delete(baseObject, association);;
 	}
 
 	public void deleteAssociation(MAGAObject baseObject, MAGAObject otherObject,
@@ -73,11 +93,11 @@ public class MAGA {
 		throwExceptionIfCantSave(baseObject);
 		throwExceptionIfCantSave(otherObject);
 		throwExceptionIfObjectUnsaved(baseObject);
-		loadPathFactory.getNewAssociationDelete().delete(baseObject, otherObject, association);
+		new AssociationDelete(dataSource, cache, this).delete(baseObject, otherObject, association);;
 	}
 	
 	public void schemaSync() {
-		loadPathFactory.getNewSchemaSync().go();
+		new SchemaSync(dataSource, cache).go();
 	}
 	
 	private void throwExceptionIfCantSave(MAGAObject object) {
@@ -89,6 +109,13 @@ public class MAGA {
 		if (object.id == 0) {
 			throw new MAGAException("Method unsupported for unsaved object [" + object.getClass().getName() + "] " + object.id);
 		}
+	}
+
+	public List<MAGAAssociation> loadWhereHasClassWithJoinColumn(Class<? extends MAGAObject> class1) {
+		return new AssociationLoad(dataSource, cache, this, template).loadWhereHasClassWithJoinColumn(class1);
+	}
+	public List loadWhereHasClass(Class clazz) {
+		return new AssociationLoad(dataSource, cache, this, template).loadWhereHasClass(clazz);
 	}
 
 }

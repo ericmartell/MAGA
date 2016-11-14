@@ -9,16 +9,16 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import com.ericdmartell.maga.factory.ActionFactory;
+import com.ericdmartell.maga.MAGA;
 import com.ericdmartell.maga.objects.MAGAObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gnu.trove.map.hash.THashMap;
 
 public class HistoryUtil {
-	public static void recordHistory(final MAGAObject oldObjReference, final MAGAObject obj, ActionFactory loadPathFactory, DataSource dataSource) {
+	public static void recordHistory(final MAGAObject oldObjReference, final MAGAObject obj, MAGA maga, DataSource dataSource) {
 		final Throwable e = new Throwable();
-		loadPathFactory.executorPool.submit(new Runnable() {
+		maga.executorPool.submit(new Runnable() {
 			@Override
 			public void run() {
 				MAGAObject oldObj = oldObjReference;
