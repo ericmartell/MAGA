@@ -117,5 +117,12 @@ public class MAGA {
 	public List loadWhereHasClass(Class clazz) {
 		return new AssociationLoad(dataSource, cache, this, template).loadWhereHasClass(clazz);
 	}
-
+	
+	public void dirtyObject(MAGAObject object) {
+		cache.dirtyObject(object);
+	}
+	
+	public void dirtyAssociation(MAGAObject object, MAGAAssociation association) {
+		cache.dirtyAssoc(object, association);
+	}
 }
