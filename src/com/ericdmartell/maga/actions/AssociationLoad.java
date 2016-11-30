@@ -96,10 +96,10 @@ public class AssociationLoad {
 			// We're on the many side of the one-many... The join data is right
 			// on the object... But it might be dirty so we refresh
 			obj = maga.load(obj.getClass(), obj.id);
-			long val = -1;
+			long val = 0;
 			val = (long) ReflectionUtils.getFieldValue(obj, association.class2Column());
 
-			if (val != -1) {
+			if (val != 0) {
 				ret.add(val);
 				return ret;
 			} else {

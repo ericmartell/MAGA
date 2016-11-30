@@ -69,7 +69,7 @@ public class MAGA {
 		new ObjectDelete(dataSource, cache, this).delete(toDelete);;
 	}
 
-	public List<MAGAObject> loadAssociatedObjects(MAGAObject baseObject, MAGAAssociation association) {
+	public List loadAssociatedObjects(MAGAObject baseObject, MAGAAssociation association) {
 		throwExceptionIfObjectUnsaved(baseObject);
 		return new AssociationLoad(dataSource, cache, this, template).load(baseObject, association);
 	}

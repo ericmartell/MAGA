@@ -51,13 +51,18 @@ public class ObjectUpdate {
 		
 		cache.dirtyObject(obj);
 		for (MAGAAssociation assoc : affectedAssociations) {
-			long val = -1;
-			long oldVal = -1;
-			val = (long) ReflectionUtils.getFieldValue(obj, assoc.class2Column());
+			long val = 0;
+			long oldVal = 0;
+			try {
+				val = (long) ReflectionUtils.getFieldValue(obj, assoc.class2Column());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			if (oldObj != null) {
 				oldVal = (long) ReflectionUtils.getFieldValue(oldObj, assoc.class2Column());
 			}
-			if (val != -1 && (oldObj == null || oldVal != val)) {
+			if (val != 0 && (oldObj == null || oldVal != val)) {
 				//We have a new assoc... the object on the other side needs to have its assoc pointing at this one dirtied.
 				biDirectionalDirty(obj, assoc);
 			}

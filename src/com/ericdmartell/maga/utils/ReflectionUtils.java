@@ -39,6 +39,9 @@ public class ReflectionUtils {
 			buildIndex(obj.getClass());
 		}
 		try {
+			if (classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName) == null) {
+				return false;
+			}
 			classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new MAGAException(e);
@@ -55,12 +58,19 @@ public class ReflectionUtils {
 
 		Object ret;
 		try {
-			ret = classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).get(obj);
+			if (classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName) == null) {
+				ret = null;
+			} else {
+				ret = classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).get(obj);
+			}
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new MAGAException(e);
 		}
-		if (ret == null) {
-			return -1L;
+		
+		if (ret == null && getFieldType(obj.getClass(), fieldName) == null || getFieldType(obj.getClass(), fieldName).equals(long.class) || getFieldType(obj.getClass(), fieldName).equals(Long.class)) {
+			return 0L;
+		} else if (ret == null && getFieldType(obj.getClass(), fieldName).equals(int.class) || getFieldType(obj.getClass(), fieldName).equals(Integer.class)) {
+			return 0;
 		}
 		return ret;
 
