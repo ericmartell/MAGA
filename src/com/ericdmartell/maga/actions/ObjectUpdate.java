@@ -127,7 +127,7 @@ public class ObjectUpdate {
 
 	private void updateSQL(MAGAObject obj) {
 		List<String> fieldNames = new ArrayList<>(ReflectionUtils.getFieldNames(obj.getClass()));
-
+		fieldNames.remove("id");
 		String sql = "update  " + obj.getClass().getSimpleName() + " set ";
 		for (String fieldName : fieldNames) {
 			sql += fieldName + "= ? ,";

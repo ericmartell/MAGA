@@ -106,7 +106,7 @@ public class SchemaSync {
 						JDBCUtil.executeUpdate(
 								"alter table " + tableName + " add column " + columnName + " " + columnType,
 								dataSource);
-					} else if (!columnsToTypes.get(columnName).toLowerCase().contains(columnType)) {
+					} else if (!columnsToTypes.get(columnName).toLowerCase().contains(columnType) && fieldType != String.class) {
 						System.out.println(
 								"Modifying column " + columnName + ":" + columnType + " to table " + tableName);
 						JDBCUtil.executeUpdate(
