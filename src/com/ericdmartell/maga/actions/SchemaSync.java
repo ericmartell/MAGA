@@ -3,10 +3,10 @@ package com.ericdmartell.maga.actions;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 

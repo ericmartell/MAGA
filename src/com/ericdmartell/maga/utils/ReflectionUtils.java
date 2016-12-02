@@ -67,9 +67,9 @@ public class ReflectionUtils {
 			throw new MAGAException(e);
 		}
 		
-		if (ret == null && getFieldType(obj.getClass(), fieldName) == null || getFieldType(obj.getClass(), fieldName).equals(long.class) || getFieldType(obj.getClass(), fieldName).equals(Long.class)) {
+		if (ret == null && (getFieldType(obj.getClass(), fieldName) == null || getFieldType(obj.getClass(), fieldName).equals(long.class) || getFieldType(obj.getClass(), fieldName).equals(Long.class))) {
 			return 0L;
-		} else if (ret == null && getFieldType(obj.getClass(), fieldName).equals(int.class) || getFieldType(obj.getClass(), fieldName).equals(Integer.class)) {
+		} else if (ret == null && (getFieldType(obj.getClass(), fieldName).equals(int.class) || getFieldType(obj.getClass(), fieldName).equals(Integer.class))) {
 			return 0;
 		}
 		return ret;
