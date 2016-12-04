@@ -156,8 +156,8 @@ public class AssociationLoad {
 
 	
 	//When we're deleting objects, or modifying objects with join columns, we need to dirty/delete assocs
-	private Map<Class<MAGAObject>, List<MAGAAssociation>> classToLoadColumnAssocs = null;
-	private Map<Class<MAGAObject>, List<MAGAAssociation>> classToAssocs = null;
+	private static Map<Class<MAGAObject>, List<MAGAAssociation>> classToLoadColumnAssocs = null;
+	private static Map<Class<MAGAObject>, List<MAGAAssociation>> classToAssocs = null;
 	
 	private void initializeClassToAssocs() {
 		try {
