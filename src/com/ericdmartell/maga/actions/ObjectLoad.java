@@ -32,12 +32,12 @@ public class ObjectLoad {
 		this.template = template;
 	}
 
-	public List<MAGAObject> loadTemplate(MAGALoadTemplate template, Object[] args) {
+	public List<MAGAObject> loadTemplate(MAGALoadTemplate template) {
 		List<MAGAObject> ret = (List<MAGAObject>) cache.get(template.getKey());
 		if (ret != null) {
 			return ret;
 		} else {
-			ret = template.run(new MAGA(dataSource, cache, template), args);
+			ret = template.run(new MAGA(dataSource, cache, template));
 			// save our result for next fetch.
 			cache.set(template.getKey(), ret);
 			return ret;

@@ -6,13 +6,13 @@ import com.ericdmartell.maga.MAGA;
 
 public abstract class MAGALoadTemplate {
 	
-	public MAGALoadTemplate() {
+	public MAGALoadTemplate(Object... params) {
 		
 	}
 	
 	protected long id;
 	
-	public abstract List<MAGAObject> run(MAGA simpleORM, Object... params);
+	public abstract List<MAGAObject> run(MAGA simpleORM);
 	
 	public abstract String getKey();
 	

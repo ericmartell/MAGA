@@ -1,6 +1,8 @@
 package com.ericdmartell.maga.associations;
 
-public abstract class MAGAAssociation {
+import java.io.Serializable;
+
+public abstract class MAGAAssociation implements Serializable {
 	public static final int MANY_TO_MANY = 1;
 	public static final int ONE_TO_MANY = 2;
 	

@@ -41,7 +41,7 @@ public class MAGA {
 	public MAGA(DataSource dataSource, Cache cache, MAGALoadTemplate template) {
 		this.dataSource = dataSource;
 		this.cache = MAGACache.getInstance(cache);
-		this.template = null;
+		this.template = template;
 	}
 	
 	public <T extends MAGAObject> T load(Class<T> clazz, long id) {		
@@ -54,8 +54,8 @@ public class MAGA {
 	public <T extends MAGAObject> List<T> loadAll(Class<T> clazz) {
 		return (List<T>) new ObjectLoad(dataSource, cache, this, template).loadAll(clazz);
 	}
-	public List<MAGAObject> loadTemplate(MAGALoadTemplate template, Object... args) {
-		return new ObjectLoad(dataSource, cache, this, template).loadTemplate(template, args);
+	public List<MAGAObject> loadTemplate(MAGALoadTemplate template) {
+		return new ObjectLoad(dataSource, cache, this, template).loadTemplate(template);
 	}
 
 	public void save(MAGAObject toSave) {
