@@ -49,7 +49,7 @@ public class SchemaSync {
 						tableName, schema) == 1;
 				if (!tableExists) {
 					JDBCUtil.executeUpdate(
-							"create table " + tableName + "(id int(11) not null AUTO_INCREMENT, primary key(id))",
+							"create table `" + tableName + "`(id int(11) not null AUTO_INCREMENT, primary key(id))",
 							dataSource);
 					System.out.println("Creating table " + tableName);
 				}
@@ -65,7 +65,7 @@ public class SchemaSync {
 							dataSource);
 					System.out.println("Creating history table " + tableName + "_history");
 				}
-				ResultSet rst = JDBCUtil.executeQuery(connection, "describe " + tableName);
+				ResultSet rst = JDBCUtil.executeQuery(connection, "describe `" + tableName + "`");
 				Map<String, String> columnsToTypes = new THashMap<>();
 				List<String> indexes = new ArrayList<>();
 				while (rst.next()) {
@@ -104,13 +104,13 @@ public class SchemaSync {
 						System.out.println("Adding column " + columnName + " to table " + tableName);
 						// Column doesnt exist
 						JDBCUtil.executeUpdate(
-								"alter table " + tableName + " add column " + columnName + " " + columnType,
+								"alter table `" + tableName + "` add column " + columnName + " " + columnType,
 								dataSource);
 					} else if (!columnsToTypes.get(columnName).toLowerCase().contains(columnType) && fieldType != String.class) {
 						System.out.println(
 								"Modifying column " + columnName + ":" + columnType + " to table " + tableName);
 						JDBCUtil.executeUpdate(
-								"alter table " + tableName + " modify column " + columnName + " " + columnType,
+								"alter table `" + tableName + "` modify column " + columnName + " " + columnType,
 								dataSource);
 					}
 				}
@@ -118,7 +118,7 @@ public class SchemaSync {
 					if (!indexes.contains(indexedColumn)) {
 						System.out.println("Adding index " + indexedColumn + " to table " + tableName);
 						JDBCUtil.executeUpdate(
-								"alter table " + tableName + " add index " + indexedColumn + "(" + indexedColumn + ")",
+								"alter table `" + tableName + "` add index " + indexedColumn + "(" + indexedColumn + ")",
 								dataSource);
 					}
 				}

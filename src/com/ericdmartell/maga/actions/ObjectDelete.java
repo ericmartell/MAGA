@@ -27,7 +27,7 @@ public class ObjectDelete {
 		for (Object assoc : assocs) {
 			maga.deleteAssociations(obj, (MAGAAssociation) assoc);
 		}
-		JDBCUtil.executeUpdate("delete from " + obj.getClass().getSimpleName() + " where id = " + obj.id, dataSource);
+		JDBCUtil.executeUpdate("delete from `" + obj.getClass().getSimpleName() + "` where id = " + obj.id, dataSource);
 		cache.dirtyObject(obj);
 	}
 	

@@ -85,7 +85,7 @@ public class ObjectUpdate {
 	private void addSQL(MAGAObject obj) {
 		List<String> fieldNames = new ArrayList<>(ReflectionUtils.getFieldNames(obj.getClass()));
 
-		String sql = "insert into  " + obj.getClass().getSimpleName() + "(";
+		String sql = "insert into  `" + obj.getClass().getSimpleName() + "`(";
 		for (String fieldName : fieldNames) {
 			if (fieldName.equals("id")) {
 				continue;
@@ -128,7 +128,7 @@ public class ObjectUpdate {
 	private void updateSQL(MAGAObject obj) {
 		List<String> fieldNames = new ArrayList<>(ReflectionUtils.getFieldNames(obj.getClass()));
 		fieldNames.remove("id");
-		String sql = "update  " + obj.getClass().getSimpleName() + " set ";
+		String sql = "update  `" + obj.getClass().getSimpleName() + "` set ";
 		for (String fieldName : fieldNames) {
 			sql += fieldName + "= ? ,";
 		}
