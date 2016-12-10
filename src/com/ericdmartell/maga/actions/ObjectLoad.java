@@ -160,11 +160,11 @@ public class ObjectLoad {
 			sql += fieldName + ",";
 		}
 		sql = sql.substring(0, sql.length() - 1);
-		sql += " from " + clazz.getSimpleName();
+		sql += " from `" + clazz.getSimpleName();
 		if (ids.size() == 1) {
-			sql += " where id = " + ids.iterator().next();
+			sql += "` where id = " + ids.iterator().next();
 		} else {
-			sql += " where id in (";
+			sql += "` where id in (";
 			for (long id : ids) {
 				sql += id + ",";
 			}
