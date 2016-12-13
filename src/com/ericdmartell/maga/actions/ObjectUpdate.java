@@ -6,10 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
 import com.ericdmartell.maga.MAGA;
+import com.ericdmartell.maga.annotations.MAGATimestampID;
 import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
 import com.ericdmartell.maga.objects.MAGAObject;
@@ -17,6 +19,8 @@ import com.ericdmartell.maga.utils.HistoryUtil;
 import com.ericdmartell.maga.utils.JDBCUtil;
 import com.ericdmartell.maga.utils.MAGAException;
 import com.ericdmartell.maga.utils.ReflectionUtils;
+
+import gnu.trove.map.hash.THashMap;
 
 public class ObjectUpdate {
 
@@ -82,8 +86,15 @@ public class ObjectUpdate {
 		cache.dirtyAssoc(obj, association);
 
 	}
-
+	private static Map<Class, Boolean> autoId = new THashMap<>();
 	private void addSQL(MAGAObject obj) {
+		Class clazz = obj.getClass();
+		if (!autoId.containsKey(clazz)) {
+			autoId.put(clazz, clazz.isAnnotationPresent(MAGATimestampID.class));
+		}
+		
+		boolean genId = autoId.get(clazz);
+		
 		List<String> fieldNames = new ArrayList<>(ReflectionUtils.getFieldNames(obj.getClass()));
 
 		String sql = "insert into  `" + obj.getClass().getSimpleName() + "`(";
@@ -93,11 +104,20 @@ public class ObjectUpdate {
 			}
 			sql += fieldName + ",";
 		}
-		sql += "id) values(";
-		for (int i = 0; i < fieldNames.size(); i++) {
-
-			sql += "?,";
+		if (genId) {
+			sql += "id) values(";
+			for (int i = 0; i < fieldNames.size(); i++) {
+				sql += "?,";
+			}
+		} else {
+			sql = sql.substring(0, sql.length() - 1);
+			sql += ") values(";
+			for (int i = 0; i < fieldNames.size() - 1; i++) {
+				sql += "?,";
+			}
 		}
+		
+		
 		sql = sql.substring(0, sql.length() - 1);
 		sql += ")";
 		Connection con = JDBCUtil.getConnection(dataSource);
@@ -117,7 +137,9 @@ public class ObjectUpdate {
 			long id = System.currentTimeMillis() * 1000;
 			while (!success) {
 				try {
-					pstmt.setLong(i, (~id) & (Long.MAX_VALUE / 2));
+					if (genId) {
+						pstmt.setLong(i, (~id) & (Long.MAX_VALUE / 2));
+					}
 					pstmt.executeUpdate();
 					success = true;
 				} catch (SQLException e) {
