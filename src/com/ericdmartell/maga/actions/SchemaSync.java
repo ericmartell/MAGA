@@ -49,7 +49,7 @@ public class SchemaSync {
 						tableName, schema) == 1;
 				if (!tableExists) {
 					JDBCUtil.executeUpdate(
-							"create table `" + tableName + "`(id int(11) not null AUTO_INCREMENT, primary key(id))",
+							"create table `" + tableName + "`(id bigint(18) not null AUTO_INCREMENT, primary key(id))",
 							dataSource);
 					System.out.println("Creating table " + tableName);
 				}
@@ -59,7 +59,7 @@ public class SchemaSync {
 						tableName + "_history", schema) == 1;
 				if (!historyTableExists) {
 					JDBCUtil.executeUpdate("create table " + tableName + "_history"
-							+ "(id int(11), date datetime, changes longtext, stack longtext)", dataSource);
+							+ "(id bigint(18), date datetime, changes longtext, stack longtext)", dataSource);
 					JDBCUtil.executeUpdate("alter table " + tableName + "_history" + " add index id(id)", dataSource);
 					JDBCUtil.executeUpdate("alter table " + tableName + "_history" + " add index date(date)",
 							dataSource);
@@ -91,7 +91,7 @@ public class SchemaSync {
 						columnType = field.getAnnotation(MAGAORMField.class).dataType();
 					} else if (fieldType == long.class || fieldType == int.class || fieldType == Integer.class
 							|| fieldType == Long.class) {
-						columnType = "int(11)";
+						columnType = "bigint(18)";
 					} else if (fieldType == BigDecimal.class) {
 						columnType = "decimal(10,2)";
 					} else if (fieldType == Date.class) {
@@ -148,7 +148,7 @@ public class SchemaSync {
 					String columnName = association.class2Column();
 					if (!columnsToTypes.containsKey(columnName)) {
 						System.out.println("Adding join column " + columnName + " on " + tableName);
-						JDBCUtil.executeUpdate("alter table " + tableName + " add column " + columnName + " int(11)",
+						JDBCUtil.executeUpdate("alter table " + tableName + " add column " + columnName + " bigint(18)",
 								dataSource);
 					}
 					if (!indexes.contains(columnName)) {
@@ -167,9 +167,9 @@ public class SchemaSync {
 						String col1 = association.class1().getSimpleName();
 						String col2 = association.class2().getSimpleName();
 						System.out.println(
-								"create table " + tableName + " (" + col1 + " int(11), " + col2 + "  int(11))");
+								"create table " + tableName + " (" + col1 + " bigint(18), " + col2 + "  bigint(18))");
 						JDBCUtil.executeUpdate(
-								"create table " + tableName + " (" + col1 + " int(11), " + col2 + "  int(11))",
+								"create table " + tableName + " (" + col1 + " bigint(18), " + col2 + "  bigint(18))",
 								dataSource);
 						JDBCUtil.executeUpdate(
 								"alter table " + tableName + " add index " + col1 + "(" + col1 + "," + col2 + ")",

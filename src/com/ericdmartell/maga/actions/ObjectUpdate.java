@@ -31,24 +31,24 @@ public class ObjectUpdate {
 	}
 
 	public void update(final MAGAObject obj) {
-		//Object for history
+		// Object for history
 		MAGAObject oldObj = null;
-		List<MAGAAssociation> affectedAssociations = maga.
-				loadWhereHasClassWithJoinColumn(obj.getClass());
+		List<MAGAAssociation> affectedAssociations = maga.loadWhereHasClassWithJoinColumn(obj.getClass());
 		if (obj.id == 0) {
-			//We're adding a new object.
+			// We're adding a new object.
 			addSQL(obj);
 		} else {
 			oldObj = maga.load(obj.getClass(), obj.id);
-			//If the object being updated has a join column, an old object might have been joined with it.  We
-			//Dirty those assocs.
+			// If the object being updated has a join column, an old object
+			// might have been joined with it. We
+			// Dirty those assocs.
 			for (MAGAAssociation assoc : affectedAssociations) {
 				biDirectionalDirty(obj, assoc);
 			}
-			//Update the db after we've done our dirtying.
+			// Update the db after we've done our dirtying.
 			updateSQL(obj);
 		}
-		
+
 		cache.dirtyObject(obj);
 		for (MAGAAssociation assoc : affectedAssociations) {
 			long val = 0;
@@ -63,7 +63,8 @@ public class ObjectUpdate {
 				oldVal = (long) ReflectionUtils.getFieldValue(oldObj, assoc.class2Column());
 			}
 			if (val != 0 && (oldObj == null || oldVal != val)) {
-				//We have a new assoc... the object on the other side needs to have its assoc pointing at this one dirtied.
+				// We have a new assoc... the object on the other side needs to
+				// have its assoc pointing at this one dirtied.
 				biDirectionalDirty(obj, assoc);
 			}
 
@@ -72,7 +73,7 @@ public class ObjectUpdate {
 	}
 
 	private void biDirectionalDirty(MAGAObject obj, MAGAAssociation association) {
-		
+
 		List<MAGAObject> otherSide = maga.loadAssociatedObjects(obj, association);
 		cache.dirtyObject(obj);
 		for (MAGAObject other : otherSide) {
@@ -92,9 +93,8 @@ public class ObjectUpdate {
 			}
 			sql += fieldName + ",";
 		}
-		sql = sql.substring(0, sql.length() - 1);
-		sql += ") values(";
-		for (int i = 0; i < fieldNames.size() - 1; i++) {
+		sql += "id) values(";
+		for (int i = 0; i < fieldNames.size(); i++) {
 
 			sql += "?,";
 		}
@@ -113,7 +113,17 @@ public class ObjectUpdate {
 				pstmt.setObject(i++, ReflectionUtils.getFieldValue(obj, fieldName));
 
 			}
-			pstmt.executeUpdate();
+			boolean success = false;
+			long id = System.currentTimeMillis() * 1000;
+			while (!success) {
+				try {
+					pstmt.setLong(i, (~id) & (Long.MAX_VALUE / 2));
+					pstmt.executeUpdate();
+					success = true;
+				} catch (SQLException e) {
+					id++;
+				}
+			}
 			ResultSet rst = pstmt.executeQuery("select LAST_INSERT_ID()");
 			rst.next();
 			obj.id = rst.getLong(1);
