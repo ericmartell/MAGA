@@ -10,13 +10,21 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import com.ericdmartell.maga.MAGA;
+import com.ericdmartell.maga.annotations.MAGANoHistory;
 import com.ericdmartell.maga.objects.MAGAObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import gnu.trove.map.hash.THashMap;
 
 public class HistoryUtil {
+	static Map<Class, Boolean> writeHistory = new THashMap<>();
 	public static void recordHistory(final MAGAObject oldObjReference, final MAGAObject obj, MAGA maga, DataSource dataSource) {
+		if(!writeHistory.containsKey(obj.getClass())) {
+			writeHistory.put(obj.getClass(), !obj.getClass().isAnnotationPresent(MAGANoHistory.class));
+		}
+		if (!writeHistory.get(obj.getClass())) {
+			return;
+		}
 		final Throwable e = new Throwable();
 		maga.executorPool.submit(new Runnable() {
 			@Override
