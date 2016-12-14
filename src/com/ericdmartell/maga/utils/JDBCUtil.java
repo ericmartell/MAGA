@@ -18,11 +18,21 @@ public class JDBCUtil {
 		}
 	}
 
-	public static ResultSet executeQuery(Connection connection, String sql, Object...params) {
+	public static ResultSet executeQuery(Connection connection, String sql, Object... params) {
 		try {
 			PreparedStatement pstmt = prepareStatmenent(connection, sql);
-			for (int i = 0; i < params.length; i++) {
-				pstmt.setObject(i + 1, params[i]);
+			if (params.length > 0) {
+				if (params[0] instanceof List) {
+					List list = (List) params[0];
+					for (int i = 0; i < list.size(); i++) {
+						pstmt.setObject(i + 1, list.get(i));
+					}
+				} else {
+					for (int i = 0; i < params.length; i++) {
+						pstmt.setObject(i + 1, params[i]);
+					}
+				}
+				
 			}
 			return pstmt.executeQuery();
 		} catch (SQLException e) {
@@ -60,7 +70,7 @@ public class JDBCUtil {
 		}
 
 	}
-	
+
 	public static List<String> executeQueryAndReturnStrings(DataSource dataSource, String sql, Object... params) {
 		Connection connection = getConnection(dataSource);
 		try {
@@ -91,7 +101,7 @@ public class JDBCUtil {
 		}
 
 	}
-	
+
 	public static void closeConnection(Connection connection) {
 		if (connection == null) {
 			return;
@@ -99,7 +109,7 @@ public class JDBCUtil {
 		try {
 			connection.close();
 		} catch (Exception e) {
-			
+
 		}
 	}
 

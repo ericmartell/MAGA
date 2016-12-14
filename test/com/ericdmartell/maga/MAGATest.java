@@ -10,6 +10,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.ericdmartell.maga.associations.MAGAAssociation;
+import com.ericdmartell.maga.objects.MAGAObject;
 import com.ericdmartell.maga.utils.JDBCUtil;
 import com.mysql.jdbc.jdbc2.optional.MysqlDataSource;
 
@@ -22,15 +23,15 @@ public class MAGATest {
 	@BeforeClass
 	public static void setUp() throws Exception {
 		MysqlDataSource dataSource = new MysqlDataSource();
-		dataSource.setUser("simpleorm");
-		dataSource.setPassword("password");
+		dataSource.setUser("root");
+		dataSource.setPassword("Rockydog1");
 		dataSource.setServerName("localhost");
 		JDBCUtil.executeUpdate("drop schema simpleorm", dataSource);
 		JDBCUtil.executeUpdate("create schema simpleorm", dataSource);
 		dataSource = new MysqlDataSource();
 		dataSource.setDatabaseName("simpleorm");
-		dataSource.setUser("simpleorm");
-		dataSource.setPassword("password");
+		dataSource.setUser("root");
+		dataSource.setPassword("Rockydog1");
 		dataSource.setServerName("localhost");
 		MAGATest.dataSource = dataSource;
 		client = new MemcachedClient(new InetSocketAddress("localhost", 11211)); 
@@ -53,7 +54,7 @@ public class MAGATest {
 		Obj1 obj1 = new Obj1();
 		obj1.field1 = "This is a test of field one";
 		orm.save(obj1);
-		Assert.assertEquals(obj1, orm.load(Obj1.class, obj1.id));
+		Assert.assertEquals(obj1.id, orm.load(Obj1.class, obj1.id).id);
 	}
 	
 	@Test
@@ -69,9 +70,9 @@ public class MAGATest {
 		obj1.field1 = "I've changed this";
 		orm.save(obj1);
 		
-		Assert.assertNotEquals(obj1, toCompare);
+		Assert.assertNotEquals(obj1.field1, toCompare.field1);
 		Assert.assertEquals(obj1.id, toCompare.id);
-		Assert.assertEquals(obj1, orm.load(Obj1.class, obj1.id));
+		Assert.assertEquals(obj1.field1, orm.load(Obj1.class, obj1.id).field1);
 	}
 
 	@Test
@@ -100,8 +101,8 @@ public class MAGATest {
 		
 		MAGAAssociation assoc = new TestAssoc();
 		orm.addAssociation(obj2, obj1, assoc);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj1, assoc).get(0), obj2);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj2, assoc).get(0), obj1);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj1, assoc).get(0)).id, obj2.id);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj2, assoc).get(0)).id, obj1.id);
 	}
 	
 	@Test
@@ -118,8 +119,8 @@ public class MAGATest {
 		
 		MAGAAssociation assoc = new TestAssoc();
 		orm.addAssociation(obj2, obj1, assoc);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj1, assoc).get(0), obj2);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj2, assoc).get(0), obj1);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj1, assoc).get(0)).id, obj2.id);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj2, assoc).get(0)).id, obj1.id);
 		
 		orm.deleteAssociation(obj1, obj2, assoc);
 		
@@ -165,8 +166,8 @@ public class MAGATest {
 		
 		MAGAAssociation assoc = new TestAssoc2();
 		orm.addAssociation(obj2, obj1, assoc);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj1, assoc).get(0), obj2);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj2, assoc).get(0), obj1);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj1, assoc).get(0)).id, obj2.id);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj2, assoc).get(0)).id, obj1.id);
 	}
 	
 	@Test
@@ -183,8 +184,8 @@ public class MAGATest {
 		
 		MAGAAssociation assoc = new TestAssoc2();
 		orm.addAssociation(obj2, obj1, assoc);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj1, assoc).get(0), obj2);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj2, assoc).get(0), obj1);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj1, assoc).get(0)).id, obj2.id);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj2, assoc).get(0)).id, obj1.id);
 		
 		orm.deleteAssociation(obj1, obj2, assoc);
 		
@@ -207,8 +208,8 @@ public class MAGATest {
 		
 		MAGAAssociation assoc = new TestAssoc2();
 		orm.addAssociation(obj2, obj1, assoc);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj1, assoc).get(0), obj2);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj2, assoc).get(0), obj1);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj1, assoc).get(0)).id, obj2.id);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj2, assoc).get(0)).id, obj1.id);
 		
 		orm.deleteAssociations(obj1, assoc);
 		
@@ -231,8 +232,8 @@ public class MAGATest {
 		
 		MAGAAssociation assoc = new TestAssoc2();
 		orm.addAssociation(obj2, obj1, assoc);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj1, assoc).get(0), obj2);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj2, assoc).get(0), obj1);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj1, assoc).get(0)).id, obj2.id);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj2, assoc).get(0)).id, obj1.id);
 		
 		orm.deleteAssociation(obj2, obj1, assoc);
 		
@@ -255,8 +256,8 @@ public class MAGATest {
 		
 		MAGAAssociation assoc = new TestAssoc2();
 		orm.addAssociation(obj2, obj1, assoc);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj1, assoc).get(0), obj2);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj2, assoc).get(0), obj1);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj1, assoc).get(0)).id, obj2.id);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj2, assoc).get(0)).id, obj1.id);
 		
 		orm.deleteAssociations(obj2, assoc);
 		
@@ -280,8 +281,8 @@ public class MAGATest {
 		
 		MAGAAssociation assoc = new TestAssoc2();
 		orm.addAssociation(obj2, obj1, assoc);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj1, assoc).get(0), obj2);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj2, assoc).get(0), obj1);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj1, assoc).get(0)).id, obj2.id);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj2, assoc).get(0)).id, obj1.id);
 		Assert.assertEquals(obj2.joinColumn, obj1.id);
 		
 	}
@@ -305,7 +306,7 @@ public class MAGATest {
 		MAGAAssociation assoc = new TestAssoc2();
 		orm.addAssociation(obj1, obj2Other, assoc);
 		
-		Assert.assertTrue(orm.loadAssociatedObjects(obj1, assoc).get(0).equals(obj2Other));
+		Assert.assertTrue(((MAGAObject)orm.loadAssociatedObjects(obj1, assoc).get(0)).id.equals(obj2Other.id));
 		Assert.assertTrue(orm.loadAssociatedObjects(obj2, assoc).isEmpty());
 		
 		obj2.joinColumn = obj1.id;
@@ -313,7 +314,7 @@ public class MAGATest {
 		
 		
 		Assert.assertEquals(orm.loadAssociatedObjects(obj1, assoc).size(), 2);
-		Assert.assertEquals(orm.loadAssociatedObjects(obj2, assoc).get(0), obj1);
+		Assert.assertEquals(((MAGAObject)orm.loadAssociatedObjects(obj2, assoc).get(0)).id, obj1.id);
 		
 		
 	}

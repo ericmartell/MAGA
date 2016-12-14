@@ -44,11 +44,11 @@ public class MAGA {
 		this.template = template;
 	}
 	
-	public <T extends MAGAObject> T load(Class<T> clazz, long id) {		
+	public <T extends MAGAObject> T load(Class<T> clazz, String id) {		
 		return clazz.cast(new ObjectLoad(dataSource, cache, this, template).load(clazz, id));
 	}
 
-	public <T extends MAGAObject> List<T> load(Class<T> clazz, Collection<Long> ids) {
+	public <T extends MAGAObject> List<T> load(Class<T> clazz, Collection<String> ids) {
 		return (List<T>) new ObjectLoad(dataSource, cache, this, template).load(clazz, ids);
 	}
 	public <T extends MAGAObject> List<T> loadAll(Class<T> clazz) {
@@ -106,7 +106,7 @@ public class MAGA {
 		}
 	}
 	private void throwExceptionIfObjectUnsaved(MAGAObject object) {
-		if (object.id == 0) {
+		if (object.id == null) {
 			throw new MAGAException("Method unsupported for unsaved object [" + object.getClass().getName() + "] " + object.id);
 		}
 	}

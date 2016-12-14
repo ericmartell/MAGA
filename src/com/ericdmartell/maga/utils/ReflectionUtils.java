@@ -47,6 +47,8 @@ public class ReflectionUtils {
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, ((Number) value).longValue());
 			} else if (getFieldType(obj.getClass(), fieldName).equals(int.class) || getFieldType(obj.getClass(), fieldName).equals(Integer.class)) {
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, ((Number) value).intValue());
+			} else if (getFieldType(obj.getClass(), fieldName).equals(String.class) && value instanceof Number) {
+				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value + "");
 			} else {
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value);
 			}
@@ -77,8 +79,9 @@ public class ReflectionUtils {
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new MAGAException(e);
 		}
-		
-		if (ret == null && (getFieldType(obj.getClass(), fieldName) == null || getFieldType(obj.getClass(), fieldName).equals(long.class) || getFieldType(obj.getClass(), fieldName).equals(Long.class))) {
+		if (getFieldType(obj.getClass(), fieldName) == null) {
+			return ret;
+		} else if (ret == null && (getFieldType(obj.getClass(), fieldName).equals(long.class) || getFieldType(obj.getClass(), fieldName).equals(Long.class))) {
 			return 0L;
 		} else if (ret == null && (getFieldType(obj.getClass(), fieldName).equals(int.class) || getFieldType(obj.getClass(), fieldName).equals(Integer.class))) {
 			return 0;
@@ -111,7 +114,7 @@ public class ReflectionUtils {
 				}
 			}
 		}
-		fieldNamesToType.put("id", Long.class);
+		fieldNamesToType.put("id", String.class);
 		try {
 			fieldNamesToField.put("id", clazz.getField("id"));
 		} catch (NoSuchFieldException | SecurityException e) {

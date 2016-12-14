@@ -49,9 +49,9 @@ public class ObjectLoad {
 		//To get all ids, we go to the db, but there should be a faster way to do this (I hope).
 		try {
 			ResultSet rst = JDBCUtil.executeQuery(connection, "select id from " + clazz.getSimpleName());
-			List<Long> ids = new ArrayList<>();
+			List<String> ids = new ArrayList<>();
 			while (rst.next()) {
-				ids.add(rst.getLong(1));
+				ids.add(rst.getString(1));
 			}
 			return load(clazz, ids);
 		} catch (SQLException e) {
@@ -61,9 +61,9 @@ public class ObjectLoad {
 		}
 	}
 
-	public MAGAObject load(Class clazz, long id) {
+	public MAGAObject load(Class clazz, String id) {
 		//Just a wrapper on the load collection of ids.
-		List<Long> ids = new ArrayList<>();
+		List<String> ids = new ArrayList<>();
 		ids.add(id);
 		List<MAGAObject> retList = load(clazz, ids);
 		if (retList.isEmpty()) {
@@ -73,14 +73,15 @@ public class ObjectLoad {
 		}
 	}
 
-	public List<MAGAObject> load(Class clazz, Collection<Long> ids) {
+	public List<MAGAObject> load(Class clazz, Collection<String> ids) {
 
 		// A running list of ids to load
-		List<Long> toLoad = new ArrayList<>(ids);
+		List<String> toLoad = new ArrayList<>(ids);
 
 		//Remove 0's
-		List<Long> zeroList = new ArrayList<>();
-		zeroList.add(0L);
+		List<String> zeroList = new ArrayList<>();
+		zeroList.add("");
+		zeroList.add(null);
 		toLoad.removeAll(zeroList);
 		
 		//Don't make trips anywhere if the list is empty
@@ -115,10 +116,16 @@ public class ObjectLoad {
 		if (!toLoad.isEmpty()) {
 			// System.out.println("DB Misses for " + toLoad);
 		}
+		
+		if (this.template != null) {
+			for (MAGAObject object : ret) {
+				this.cache.addTemplateDependency(object, this.template);
+			}
+		}
 		return ret;
 	}
 
-	private List<MAGAObject> loadFromDB(Class<MAGAObject> clazz, Collection<Long> ids) {
+	private List<MAGAObject> loadFromDB(Class<MAGAObject> clazz, Collection<String> ids) {
 		List<MAGAObject> ret = new ArrayList<>();
 
 		// Fields with annotations
@@ -129,7 +136,7 @@ public class ObjectLoad {
 		Connection connection = JDBCUtil.getConnection(this.dataSource);
 
 		try {
-			ResultSet rst = JDBCUtil.executeQuery(connection, sql);
+			ResultSet rst = JDBCUtil.executeQuery(connection, sql, ids);
 
 			// Rather than repeatedly instantiating, we'll keep cloning this
 			// guy. TODO: is this actually a perf gain?
@@ -154,7 +161,7 @@ public class ObjectLoad {
 
 	}
 
-	private String getSQL(Class<MAGAObject> clazz, Collection<String> fieldNames, Collection<Long> ids) {
+	private String getSQL(Class<MAGAObject> clazz, Collection<String> fieldNames, Collection<String> ids) {
 		String sql = "select ";
 		for (String fieldName : fieldNames) {
 			sql += fieldName + ",";
@@ -162,11 +169,11 @@ public class ObjectLoad {
 		sql = sql.substring(0, sql.length() - 1);
 		sql += " from `" + clazz.getSimpleName();
 		if (ids.size() == 1) {
-			sql += "` where id = " + ids.iterator().next();
+			sql += "` where id = ?";
 		} else {
 			sql += "` where id in (";
-			for (long id : ids) {
-				sql += id + ",";
+			for (String id : ids) {
+				sql +=  "?,";
 			}
 			sql = sql.substring(0, sql.length() - 1);
 			sql += ")";

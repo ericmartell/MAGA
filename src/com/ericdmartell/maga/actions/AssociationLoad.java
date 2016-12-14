@@ -63,14 +63,14 @@ public class AssociationLoad {
 
 	public <T extends MAGAObject> List<T> loadWhere(Class<T> clazz, String where, Object... params) {
 		//TODO: Add some caching for this, but then we'd have to check every object add and update to see if the associated where returns new results.
-		List<Long> ids = JDBCUtil.executeQueryAndReturnLongs(dataSource, "select id from " + clazz.getSimpleName() + " where " + where, params);
+		List<String> ids = JDBCUtil.executeQueryAndReturnStrings(dataSource, "select id from " + clazz.getSimpleName() + " where " + where, params);
 		return maga.load(clazz, ids);
 		
 	}
 	
-	private List<Long> loadIds(MAGAObject obj, MAGAAssociation association) {
+	private List<String> loadIds(MAGAObject obj, MAGAAssociation association) {
 		// Memcached
-		List<Long> ret = cache.getAssociatedIds(obj, association);
+		List<String> ret = cache.getAssociatedIds(obj, association);
 
 		if (ret == null) {
 			// Go to the database.
@@ -81,40 +81,42 @@ public class AssociationLoad {
 			}
 			cache.setAssociatedIds(obj, association, ret, template);
 		}
+		if (this.template != null) {
+			this.cache.addTemplateDependencyOnAssoc(obj, association, this.template);
+		}
 		return ret;
 	}
 
-	private List<Long> getOneToManyFromDB(MAGAObject obj, MAGAAssociation association) {
-		List<Long> ret = new ArrayList<>();
+	private List<String> getOneToManyFromDB(MAGAObject obj, MAGAAssociation association) {
+		List<String> ret = new ArrayList<>();
 
 		String query;
 		if (obj.getClass() == association.class1()) {
 			// We're on the one side of the one-many.
-			query = "select id from " + association.class2().getSimpleName() + " where " + association.class2Column() + "="
-					+ obj.id;
+			query = "select id from " + association.class2().getSimpleName() + " where " + association.class2Column() + "= ?";
 		} else {
 			// We're on the many side of the one-many... The join data is right
 			// on the object... But it might be dirty so we refresh
 			obj = maga.load(obj.getClass(), obj.id);
-			long val = 0;
-			val = (long) ReflectionUtils.getFieldValue(obj, association.class2Column());
+			String val = null;
+			val = (String) ReflectionUtils.getFieldValue(obj, association.class2Column());
 
-			if (val != 0) {
+			if (val != null && !val.equals("")) {
 				ret.add(val);
 				return ret;
 			} else {
 				// Field must not exist in javaland...
 				query = "select " + association.class2Column() + " from " + association.class2().getSimpleName()
-						+ " where id = " + obj.id;
+						+ " where id = ?";
 			}
 		}
 
 		// Builds out list of ids from query.
 		Connection con = JDBCUtil.getConnection(dataSource);
 		try {
-			ResultSet rst = JDBCUtil.executeQuery(con, query);
+			ResultSet rst = JDBCUtil.executeQuery(con, query, obj.id);
 			while (rst.next()) {
-				ret.add(rst.getLong(1));
+				ret.add(rst.getString(1));
 			}
 		} catch (SQLException e) {
 			throw new MAGAException(e);
@@ -125,8 +127,8 @@ public class AssociationLoad {
 		return ret;
 	}
 
-	private List<Long> getManyToManyFromDB(MAGAObject obj, MAGAAssociation association) {
-		List<Long> ret = new ArrayList<>();
+	private List<String> getManyToManyFromDB(MAGAObject obj, MAGAAssociation association) {
+		List<String> ret = new ArrayList<>();
 		
 		String tableName = association.class1().getSimpleName() + "_to_" + association.class2().getSimpleName();
 
@@ -142,9 +144,9 @@ public class AssociationLoad {
 		Connection con = JDBCUtil.getConnection(dataSource);
 		try {
 			ResultSet rst = JDBCUtil.executeQuery(con,
-					"select " + otherColumn + " from " + tableName + " where " + whereColumn + " = " + obj.id);
+					"select " + otherColumn + " from " + tableName + " where " + whereColumn + " = ?", obj.id);
 			while (rst.next()) {
-				ret.add(rst.getLong(otherColumn));
+				ret.add(rst.getString(otherColumn));
 			}
 		} catch (SQLException e) {
 			throw new MAGAException(e);

@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 
@@ -38,7 +39,7 @@ public class ObjectUpdate {
 		// Object for history
 		MAGAObject oldObj = null;
 		List<MAGAAssociation> affectedAssociations = maga.loadWhereHasClassWithJoinColumn(obj.getClass());
-		if (obj.id == 0) {
+		if (obj.id == null) {
 			// We're adding a new object.
 			addSQL(obj);
 		} else {
@@ -55,18 +56,18 @@ public class ObjectUpdate {
 
 		cache.dirtyObject(obj);
 		for (MAGAAssociation assoc : affectedAssociations) {
-			long val = 0;
-			long oldVal = 0;
+			String val = null;
+			String oldVal = null;
 			try {
-				val = (long) ReflectionUtils.getFieldValue(obj, assoc.class2Column());
+				val = (String) ReflectionUtils.getFieldValue(obj, assoc.class2Column());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			if (oldObj != null) {
-				oldVal = (long) ReflectionUtils.getFieldValue(oldObj, assoc.class2Column());
+				oldVal = (String) ReflectionUtils.getFieldValue(oldObj, assoc.class2Column());
 			}
-			if (val != 0 && (oldObj == null || oldVal != val)) {
+			if (val != null && (oldObj == null || oldVal == null || !oldVal.equals(val))) {
 				// We have a new assoc... the object on the other side needs to
 				// have its assoc pointing at this one dirtied.
 				biDirectionalDirty(obj, assoc);
@@ -134,24 +135,24 @@ public class ObjectUpdate {
 
 			}
 			boolean success = false;
-			long id = System.currentTimeMillis() * 1000;
+			String id = UUID.randomUUID().toString();
 			while (!success) {
 				try {
 					if (genId) {
-						pstmt.setLong(i, (~id) & (Long.MAX_VALUE >>> 1));
+						pstmt.setString(i, id);
 					}
 					pstmt.executeUpdate();
 					success = true;
 				} catch (SQLException e) {
-					id++;
+					id = UUID.randomUUID().toString();
 				}
 			}
 			if (!genId) {
 				ResultSet rst = pstmt.executeQuery("select LAST_INSERT_ID()");
 				rst.next();
-				obj.id = rst.getLong(1);
+				obj.id = rst.getString(1);
 			} else {
-				obj.id = (~id) & (Long.MAX_VALUE >>> 1);
+				obj.id = id;
 			}
 		} catch (SQLException e) {
 			throw new MAGAException(e);
@@ -179,7 +180,7 @@ public class ObjectUpdate {
 				String fieldName = fieldNames.get(i);
 				pstmt.setObject(i + 1, ReflectionUtils.getFieldValue(obj, fieldName));
 			}
-			pstmt.setLong(fieldNames.size() + 1, obj.id);
+			pstmt.setString(fieldNames.size() + 1, obj.id);
 			pstmt.executeUpdate();
 
 		} catch (SQLException e) {

@@ -10,7 +10,7 @@ public abstract class MAGALoadTemplate {
 		
 	}
 	
-	protected long id;
+	protected String id;
 	
 	public abstract List<MAGAObject> run(MAGA simpleORM);
 	

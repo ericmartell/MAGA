@@ -59,7 +59,7 @@ public class HistoryUtil {
 				Connection con = JDBCUtil.getConnection(dataSource);
 				try {
 					PreparedStatement stmt = JDBCUtil.prepareStatmenent(con, "insert into " + object.getClass().getSimpleName() + "_history values(?,now(),?,?)");
-					stmt.setLong(1, object.id);
+					stmt.setString(1, object.id);
 					stmt.setString(2, json);
 					stmt.setString(3, StackUtils.throwableToStackString(e));
 					stmt.executeUpdate();

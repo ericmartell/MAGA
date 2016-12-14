@@ -14,7 +14,9 @@ import javax.sql.DataSource;
 
 import org.reflections.Reflections;
 
+import com.ericdmartell.maga.annotations.MAGANoHistory;
 import com.ericdmartell.maga.annotations.MAGAORMField;
+import com.ericdmartell.maga.annotations.MAGATimestampID;
 import com.ericdmartell.maga.associations.MAGAAssociation;
 import com.ericdmartell.maga.cache.MAGACache;
 import com.ericdmartell.maga.objects.MAGAObject;
@@ -48,18 +50,24 @@ public class SchemaSync {
 						"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?) and (TABLE_SCHEMA = ?)",
 						tableName, schema) == 1;
 				if (!tableExists) {
-					JDBCUtil.executeUpdate(
-							"create table `" + tableName + "`(id bigint(18) not null AUTO_INCREMENT, primary key(id))",
-							dataSource);
+					if (clazz.isAnnotationPresent(MAGATimestampID.class)) {
+						JDBCUtil.executeUpdate(
+								"create table `" + tableName + "`(id varchar(255) not null, primary key(id))",
+								dataSource);
+					} else {
+						JDBCUtil.executeUpdate("create table `" + tableName
+								+ "`(id bigint(18) not null AUTO_INCREMENT, primary key(id))", dataSource);
+					}
+
 					System.out.println("Creating table " + tableName);
 				}
 
 				boolean historyTableExists = JDBCUtil.executeQueryAndReturnSingleLong(dataSource,
 						"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?) and (TABLE_SCHEMA = ?)",
 						tableName + "_history", schema) == 1;
-				if (!historyTableExists) {
+				if (!historyTableExists && !clazz.isAnnotationPresent(MAGANoHistory.class)) {
 					JDBCUtil.executeUpdate("create table " + tableName + "_history"
-							+ "(id bigint(18), date datetime, changes longtext, stack longtext)", dataSource);
+							+ "(id varchar(255), date datetime, changes longtext, stack longtext)", dataSource);
 					JDBCUtil.executeUpdate("alter table " + tableName + "_history" + " add index id(id)", dataSource);
 					JDBCUtil.executeUpdate("alter table " + tableName + "_history" + " add index date(date)",
 							dataSource);
@@ -106,7 +114,8 @@ public class SchemaSync {
 						JDBCUtil.executeUpdate(
 								"alter table `" + tableName + "` add column " + columnName + " " + columnType,
 								dataSource);
-					} else if (!columnsToTypes.get(columnName).toLowerCase().contains(columnType) && fieldType != String.class) {
+					} else if (!columnsToTypes.get(columnName).toLowerCase().contains(columnType)
+							&& fieldType != String.class) {
 						System.out.println(
 								"Modifying column " + columnName + ":" + columnType + " to table " + tableName);
 						JDBCUtil.executeUpdate(
@@ -117,9 +126,8 @@ public class SchemaSync {
 				for (String indexedColumn : ReflectionUtils.getIndexedColumns(clazz)) {
 					if (!indexes.contains(indexedColumn)) {
 						System.out.println("Adding index " + indexedColumn + " to table " + tableName);
-						JDBCUtil.executeUpdate(
-								"alter table `" + tableName + "` add index " + indexedColumn + "(" + indexedColumn + ")",
-								dataSource);
+						JDBCUtil.executeUpdate("alter table `" + tableName + "` add index " + indexedColumn + "("
+								+ indexedColumn + ")", dataSource);
 					}
 				}
 
@@ -148,8 +156,16 @@ public class SchemaSync {
 					String columnName = association.class2Column();
 					if (!columnsToTypes.containsKey(columnName)) {
 						System.out.println("Adding join column " + columnName + " on " + tableName);
-						JDBCUtil.executeUpdate("alter table " + tableName + " add column " + columnName + " bigint(18)",
-								dataSource);
+						if (association.class1().isAnnotationPresent(MAGATimestampID.class)) {
+							JDBCUtil.executeUpdate(
+									"alter table " + tableName + " add column " + columnName + " varchar(255)",
+									dataSource);
+						} else {
+							JDBCUtil.executeUpdate(
+									"alter table " + tableName + " add column " + columnName + " bigint(18)",
+									dataSource);
+						}
+
 					}
 					if (!indexes.contains(columnName)) {
 						System.out.println("Adding index to join column " + columnName + " on " + tableName);
@@ -166,11 +182,12 @@ public class SchemaSync {
 					if (!tableExists) {
 						String col1 = association.class1().getSimpleName();
 						String col2 = association.class2().getSimpleName();
-						System.out.println(
-								"create table " + tableName + " (" + col1 + " bigint(18), " + col2 + "  bigint(18))");
-						JDBCUtil.executeUpdate(
-								"create table " + tableName + " (" + col1 + " bigint(18), " + col2 + "  bigint(18))",
-								dataSource);
+						String type1 = association.class1().isAnnotationPresent(MAGATimestampID.class) ? "varchar(255)"
+								: "bigint(18)";
+						String type2 = association.class2().isAnnotationPresent(MAGATimestampID.class) ? "varchar(255)"
+								: "bigint(18)";
+						JDBCUtil.executeUpdate("create table " + tableName + " (" + col1 + " " + type1 + ", " + col2
+								+ "  " + type2 + ")", dataSource);
 						JDBCUtil.executeUpdate(
 								"alter table " + tableName + " add index " + col1 + "(" + col1 + "," + col2 + ")",
 								dataSource);

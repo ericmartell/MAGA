@@ -42,7 +42,7 @@ public class AssociationAdd {
 		// DB Part
 		JDBCUtil.executeUpdate("insert into " + association.class1().getSimpleName() + "_to_"
 				+ association.class2().getSimpleName() + "(" + obj.getClass().getSimpleName() + ","
-				+ obj2.getClass().getSimpleName() + ") values(" + obj.id + "," + obj2.id + ")", dataSource);
+				+ obj2.getClass().getSimpleName() + ") values(?,?)", dataSource, obj.id, obj2.id);
 
 		// Cache Part
 		cache.dirtyAssoc(obj, association);
@@ -64,7 +64,7 @@ public class AssociationAdd {
 
 		// DB/Live object field swap Part.
 		JDBCUtil.executeUpdate("update " + objOfClass2.getClass().getSimpleName() + " set " + association.class2Column()
-				+ " = " + objOfClass1.id + " where id = " + objOfClass2.id, dataSource);
+				+ " = ? where id = ?", dataSource, objOfClass1.id, objOfClass2.id);
 		ReflectionUtils.setFieldValue(objOfClass2, association.class2Column(), objOfClass1.id);
 
 		// Cache Part.
