@@ -138,7 +138,7 @@ public class ObjectUpdate {
 			while (!success) {
 				try {
 					if (genId) {
-						pstmt.setLong(i, (~id) & (Long.MAX_VALUE / 2));
+						pstmt.setLong(i, (~id) & (Long.MAX_VALUE >>> 1));
 					}
 					pstmt.executeUpdate();
 					success = true;
