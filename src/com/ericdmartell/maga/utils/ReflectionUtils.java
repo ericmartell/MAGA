@@ -42,7 +42,14 @@ public class ReflectionUtils {
 			if (classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName) == null) {
 				return false;
 			}
-			classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value);
+			
+			if (getFieldType(obj.getClass(), fieldName).equals(long.class) || getFieldType(obj.getClass(), fieldName).equals(Long.class)) {
+				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, ((Number) value).longValue());
+			} else if (getFieldType(obj.getClass(), fieldName).equals(int.class) || getFieldType(obj.getClass(), fieldName).equals(Integer.class)) {
+				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, ((Number) value).intValue());
+			} else {
+				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value);
+			}
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new MAGAException(e);
 		}
@@ -52,8 +59,12 @@ public class ReflectionUtils {
 	}
 
 	public static Object getFieldValue(MAGAObject obj, String fieldName) {
+		try {
 		if (!classesToFieldNamesAndTypes.containsKey(obj.getClass())) {
 			buildIndex(obj.getClass());
+		}
+		} catch (NullPointerException e) {
+			e.printStackTrace();
 		}
 
 		Object ret;

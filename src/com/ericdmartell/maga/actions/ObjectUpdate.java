@@ -146,9 +146,13 @@ public class ObjectUpdate {
 					id++;
 				}
 			}
-			ResultSet rst = pstmt.executeQuery("select LAST_INSERT_ID()");
-			rst.next();
-			obj.id = rst.getLong(1);
+			if (!genId) {
+				ResultSet rst = pstmt.executeQuery("select LAST_INSERT_ID()");
+				rst.next();
+				obj.id = rst.getLong(1);
+			} else {
+				obj.id = (~id) & (Long.MAX_VALUE >>> 1);
+			}
 		} catch (SQLException e) {
 			throw new MAGAException(e);
 		} finally {
