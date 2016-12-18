@@ -93,7 +93,7 @@ public class AssociationLoad {
 		String query;
 		if (obj.getClass() == association.class1()) {
 			// We're on the one side of the one-many.
-			query = "select id from " + association.class2().getSimpleName() + " where " + association.class2Column() + "= ?";
+			query = "select id from `" + association.class2().getSimpleName() + "` where " + association.class2Column() + "= ?";
 		} else {
 			// We're on the many side of the one-many... The join data is right
 			// on the object... But it might be dirty so we refresh
@@ -106,8 +106,8 @@ public class AssociationLoad {
 				return ret;
 			} else {
 				// Field must not exist in javaland...
-				query = "select " + association.class2Column() + " from " + association.class2().getSimpleName()
-						+ " where id = ?";
+				query = "select " + association.class2Column() + " from `" + association.class2().getSimpleName()
+						+ "` where id = ?";
 			}
 		}
 

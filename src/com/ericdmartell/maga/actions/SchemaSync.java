@@ -143,7 +143,7 @@ public class SchemaSync {
 			for (MAGAAssociation association : associations) {
 				if (association.type() == MAGAAssociation.ONE_TO_MANY) {
 					String tableName = association.class2().getSimpleName();
-					ResultSet rst = JDBCUtil.executeQuery(connection, "describe " + tableName);
+					ResultSet rst = JDBCUtil.executeQuery(connection, "describe `" + tableName + "`");
 					Map<String, String> columnsToTypes = new THashMap<>();
 					List<String> indexes = new ArrayList<>();
 					while (rst.next()) {
