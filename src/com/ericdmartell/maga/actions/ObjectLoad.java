@@ -48,7 +48,7 @@ public class ObjectLoad {
 		Connection connection = JDBCUtil.getConnection(dataSource);
 		//To get all ids, we go to the db, but there should be a faster way to do this (I hope).
 		try {
-			ResultSet rst = JDBCUtil.executeQuery(connection, "select id from " + clazz.getSimpleName());
+			ResultSet rst = JDBCUtil.executeQuery(connection, "select id from `" + clazz.getSimpleName() + "`");
 			List<String> ids = new ArrayList<>();
 			while (rst.next()) {
 				ids.add(rst.getString(1));
@@ -162,9 +162,9 @@ public class ObjectLoad {
 	}
 
 	private String getSQL(Class<MAGAObject> clazz, Collection<String> fieldNames, Collection<String> ids) {
-		String sql = "select ";
+		String sql = "select `";
 		for (String fieldName : fieldNames) {
-			sql += fieldName + ",";
+			sql += fieldName + "`,";
 		}
 		sql = sql.substring(0, sql.length() - 1);
 		sql += " from `" + clazz.getSimpleName();

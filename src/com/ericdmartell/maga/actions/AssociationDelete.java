@@ -42,8 +42,8 @@ public class AssociationDelete {
 		List<MAGAObject> objectsOnTheOtherSide = maga.loadAssociatedObjects(obj, association);
 
 		// DB Part
-		JDBCUtil.executeUpdate("delete from " + association.class1().getSimpleName() + "_to_"
-				+ association.class2().getSimpleName() + " where " + obj.getClass().getSimpleName() + " = " + obj.id,
+		JDBCUtil.executeUpdate("delete from `" + association.class1().getSimpleName() + "_to_"
+				+ association.class2().getSimpleName() + "` where `" + obj.getClass().getSimpleName() + "` = " + obj.id,
 				dataSource);
 
 		// Cache Part
@@ -60,8 +60,8 @@ public class AssociationDelete {
 		
 		//DB Part.  Take all linked objects and zero out their join column.
 		for (MAGAObject objectOnOtherSide : objectsOnTheOtherSide) {
-			JDBCUtil.executeUpdate("update " + association.class2().getSimpleName() + " set "
-					+ association.class2Column() + " = 0 where id = " + objectOnOtherSide.id, dataSource);
+			JDBCUtil.executeUpdate("update `" + association.class2().getSimpleName() + "` set `"
+					+ association.class2Column() + "` = 0 where id = ?", dataSource, objectOnOtherSide.id);
 		}
 		
 		//Cache Part
@@ -80,8 +80,8 @@ public class AssociationDelete {
 		List<MAGAObject> objectsOnTheOtherSide = maga.loadAssociatedObjects(obj, association);
 		
 		//DB Part and since we have a reference to an object whose column is being changed, we use reflection to change its field val.
-		JDBCUtil.executeUpdate("update " + obj.getClass().getSimpleName() + " set "
-				+ association.class2Column() + " = 0 where id = " + obj.id, dataSource);
+		JDBCUtil.executeUpdate("update `" + obj.getClass().getSimpleName() + "` set `"
+				+ association.class2Column() + "` = 0 where id = ?", dataSource, obj.id);
 		ReflectionUtils.setFieldValue(obj, association.class2Column(), 0);
 		
 		//Cache Part
@@ -106,9 +106,9 @@ public class AssociationDelete {
 	
 	private void deleteSpecificManyToMany(MAGAObject obj, MAGAObject obj2, MAGAAssociation association) {
 		//DB Part
-		JDBCUtil.executeUpdate("delete from " + association.class1().getSimpleName() + "_to_"
-				+ association.class2().getSimpleName() + " where " + obj.getClass().getSimpleName() + " = " + obj.id
-				+ " and " + obj2.getClass().getSimpleName() + "=" + obj2.id, dataSource);
+		JDBCUtil.executeUpdate("delete from `" + association.class1().getSimpleName() + "_to_"
+				+ association.class2().getSimpleName() + "` where `" + obj.getClass().getSimpleName() + "` =  ?" 
+				+ " and `" + obj2.getClass().getSimpleName() + "` = ?", dataSource, obj.id, obj2.id);
 		//Cache Part.
 		cache.dirtyAssoc(obj, association);
 		cache.dirtyAssoc(obj2, association);
@@ -119,8 +119,8 @@ public class AssociationDelete {
 		MAGAObject oldObject = maga.load(obj2.getClass(), obj2.id);
 		
 		//DB Part
-		JDBCUtil.executeUpdate("update " + obj2.getClass().getSimpleName() + " set " + association.class2Column()
-				+ " = 0 where id = " + obj2.id, dataSource);
+		JDBCUtil.executeUpdate("update `" + obj2.getClass().getSimpleName() + "` set `" + association.class2Column()
+				+ "` = 0 where id = ?", dataSource, obj2.id);
 		//Set the object reference with the join column to have the same value (0) as in the db.
 		ReflectionUtils.setFieldValue(obj2, association.class2Column(), 0);
 		

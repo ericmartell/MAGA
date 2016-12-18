@@ -103,7 +103,7 @@ public class ObjectUpdate {
 			if (fieldName.equals("id")) {
 				continue;
 			}
-			sql += fieldName + ",";
+			sql += "`" + fieldName + "`,";
 		}
 		if (genId) {
 			sql += "id) values(";
@@ -167,7 +167,7 @@ public class ObjectUpdate {
 		fieldNames.remove("id");
 		String sql = "update  `" + obj.getClass().getSimpleName() + "` set ";
 		for (String fieldName : fieldNames) {
-			sql += fieldName + "= ? ,";
+			sql += "`" + fieldName + "`" + "= ? ,";
 		}
 		sql = sql.substring(0, sql.length() - 1);
 		sql += " where id = ?";

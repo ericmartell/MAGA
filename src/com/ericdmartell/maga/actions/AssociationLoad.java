@@ -63,7 +63,7 @@ public class AssociationLoad {
 
 	public <T extends MAGAObject> List<T> loadWhere(Class<T> clazz, String where, Object... params) {
 		//TODO: Add some caching for this, but then we'd have to check every object add and update to see if the associated where returns new results.
-		List<String> ids = JDBCUtil.executeQueryAndReturnStrings(dataSource, "select id from " + clazz.getSimpleName() + " where " + where, params);
+		List<String> ids = JDBCUtil.executeQueryAndReturnStrings(dataSource, "select id from `" + clazz.getSimpleName() + "` where " + where, params);
 		return maga.load(clazz, ids);
 		
 	}
@@ -106,7 +106,7 @@ public class AssociationLoad {
 				return ret;
 			} else {
 				// Field must not exist in javaland...
-				query = "select " + association.class2Column() + " from `" + association.class2().getSimpleName()
+				query = "select `" + association.class2Column() + "` from `" + association.class2().getSimpleName()
 						+ "` where id = ?";
 			}
 		}
@@ -144,7 +144,7 @@ public class AssociationLoad {
 		Connection con = JDBCUtil.getConnection(dataSource);
 		try {
 			ResultSet rst = JDBCUtil.executeQuery(con,
-					"select " + otherColumn + " from " + tableName + " where " + whereColumn + " = ?", obj.id);
+					"select `" + otherColumn + "` from `" + tableName + "` where `" + whereColumn + "` = ?", obj.id);
 			while (rst.next()) {
 				ret.add(rst.getString(otherColumn));
 			}
