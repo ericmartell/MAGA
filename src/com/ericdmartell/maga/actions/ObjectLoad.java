@@ -162,9 +162,9 @@ public class ObjectLoad {
 	}
 
 	private String getSQL(Class<MAGAObject> clazz, Collection<String> fieldNames, Collection<String> ids) {
-		String sql = "select `";
+		String sql = "select ";
 		for (String fieldName : fieldNames) {
-			sql += fieldName + "`,";
+			sql += "`" + fieldName + "`,";
 		}
 		sql = sql.substring(0, sql.length() - 1);
 		sql += " from `" + clazz.getSimpleName();

@@ -49,6 +49,8 @@ public class ReflectionUtils {
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, ((Number) value).intValue());
 			} else if (getFieldType(obj.getClass(), fieldName).equals(String.class) && value instanceof Number) {
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value + "");
+			} else if ((getFieldType(obj.getClass(), fieldName).equals(Boolean.class) || getFieldType(obj.getClass(), fieldName).equals(boolean.class)) && value instanceof String) {
+				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value == null ? false : ("1".equals(value + "")));
 			} else {
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value);
 			}
@@ -85,6 +87,8 @@ public class ReflectionUtils {
 			return 0L;
 		} else if (ret == null && (getFieldType(obj.getClass(), fieldName).equals(int.class) || getFieldType(obj.getClass(), fieldName).equals(Integer.class))) {
 			return 0;
+		} else if (ret == null && (getFieldType(obj.getClass(), fieldName).equals(Boolean.class) || getFieldType(obj.getClass(), fieldName).equals(boolean.class))) {
+			return false;
 		}
 		return ret;
 
