@@ -44,8 +44,14 @@ public class ReflectionUtils {
 			}
 			
 			if (getFieldType(obj.getClass(), fieldName).equals(long.class) || getFieldType(obj.getClass(), fieldName).equals(Long.class)) {
+				if (value == null) {
+					value = 0L;
+				}
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, ((Number) value).longValue());
 			} else if (getFieldType(obj.getClass(), fieldName).equals(int.class) || getFieldType(obj.getClass(), fieldName).equals(Integer.class)) {
+				if (value == null) {
+					value = 0;
+				}
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, ((Number) value).intValue());
 			} else if (getFieldType(obj.getClass(), fieldName).equals(String.class) && value instanceof Number) {
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value + "");
