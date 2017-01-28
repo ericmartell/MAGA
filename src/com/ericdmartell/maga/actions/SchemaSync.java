@@ -36,10 +36,11 @@ public class SchemaSync {
 	}
 
 	public void go() {
+		boolean changes = false;
 		String schema = JDBCUtil.executeQueryAndReturnSingleString(dataSource, "select database()");
 		Connection connection = JDBCUtil.getConnection(dataSource);
 		try {
-			cache.flush();
+			
 			Reflections reflections = new Reflections("");
 			List<Class<MAGAObject>> classes = new ArrayList(reflections.getSubTypesOf(MAGAObject.class));
 
@@ -50,6 +51,7 @@ public class SchemaSync {
 						"SELECT count(*) FROM information_schema.TABLES WHERE  (TABLE_NAME = ?) and (TABLE_SCHEMA = ?)",
 						tableName, schema) == 1;
 				if (!tableExists) {
+					changes = true;
 					if (clazz.isAnnotationPresent(MAGATimestampID.class)) {
 						JDBCUtil.executeUpdate(
 								"create table `" + tableName + "`(id varchar(255) not null, primary key(id))",
@@ -109,6 +111,7 @@ public class SchemaSync {
 					}
 
 					if (!columnsToTypes.containsKey(columnName)) {
+						changes = true;
 						System.out.println("Adding column " + columnName + " to table " + tableName);
 						// Column doesnt exist
 						JDBCUtil.executeUpdate(
@@ -116,6 +119,7 @@ public class SchemaSync {
 								dataSource);
 					} else if (!columnsToTypes.get(columnName).toLowerCase().contains(columnType)
 							&& fieldType != String.class) {
+						changes = true;
 						System.out.println(
 								"Modifying column " + columnName + ":" + columnType + " to table " + tableName);
 						JDBCUtil.executeUpdate(
@@ -130,8 +134,7 @@ public class SchemaSync {
 								+ indexedColumn + ")", dataSource);
 					}
 				}
-
-				cache.flush();
+				
 
 			}
 			List<Class<MAGAAssociation>> associationsClasses = new ArrayList(
@@ -155,6 +158,7 @@ public class SchemaSync {
 					}
 					String columnName = association.class2Column();
 					if (!columnsToTypes.containsKey(columnName)) {
+						changes = true;
 						System.out.println("Adding join column " + columnName + " on " + tableName);
 						if (association.class1().isAnnotationPresent(MAGATimestampID.class)) {
 							JDBCUtil.executeUpdate(
@@ -186,6 +190,7 @@ public class SchemaSync {
 								: "bigint(18)";
 						String type2 = association.class2().isAnnotationPresent(MAGATimestampID.class) ? "varchar(255)"
 								: "bigint(18)";
+						changes = true;
 						JDBCUtil.executeUpdate("create table " + tableName + " (" + col1 + " " + type1 + ", " + col2
 								+ "  " + type2 + ")", dataSource);
 						JDBCUtil.executeUpdate(
@@ -203,6 +208,9 @@ public class SchemaSync {
 			throw new MAGAException(e);
 		} finally {
 			JDBCUtil.closeConnection(connection);
+		}
+		if (changes) {
+			cache.flush();
 		}
 	}
 }
