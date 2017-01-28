@@ -52,9 +52,10 @@ public class ObjectUpdate {
 			}
 			// Update the db after we've done our dirtying.
 			updateSQL(obj);
+			cache.dirtyObject(obj);
 		}
 
-		cache.dirtyObject(obj);
+		
 		for (MAGAAssociation assoc : affectedAssociations) {
 			String val = null;
 			String oldVal = null;
