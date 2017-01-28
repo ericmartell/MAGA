@@ -9,13 +9,13 @@ import com.ericdmartell.cache.Cache;
 import com.ericdmartell.cache.CacheData;
 
 
-public class HashMapCache implements Cache {
+public class HashMapCache extends Cache {
 
 	Map<String, Object> data = new HashMap<>();
 	public CacheData cacheData = new CacheData();
 
 	@Override
-	public Object get(String key) {
+	public Object getImpl(String key) {
 		Object ret = cloneObject(data.get(key));
 		if (ret != null) {
 			cacheData.hits++;
@@ -26,26 +26,26 @@ public class HashMapCache implements Cache {
 	}
 
 	@Override
-	public void set(String key, Object val) {
+	public void setImpl(String key, Object val) {
 		cacheData.sets++;
 		data.put(key, cloneObject(val));
 
 	}
 
 	@Override
-	public void flush() {
+	public void flushImpl() {
 		data = new HashMap<>();
 	}
 
 	@Override
-	public void dirty(String key) {
+	public void dirtyImpl(String key) {
 		cacheData.dirties++;
 		data.remove(key);
 
 	}
 
 	@Override
-	public Map<String, Object> getBulk(List<String> keys) {
+	public Map<String, Object> getBulkImpl(List<String> keys) {
 		Map<String, Object> ret = new HashMap<>();
 		for (String key : keys) {
 			if (data.get(key) != null) {

@@ -12,7 +12,7 @@ import com.ericdmartell.maga.objects.MAGAObject;
 
 import gnu.trove.map.hash.THashMap;
 
-public class MAGACache implements Cache {
+public class MAGACache extends Cache {
 	
 	private MAGACache() {
 		
@@ -151,28 +151,28 @@ public class MAGACache implements Cache {
 	}
 	
 	@Override
-	public void set(String key, Object val) {
+	public void setImpl(String key, Object val) {
 		delegate.set(key, val);
 	}
 	
 	@Override
-	public Map<String, Object> getBulk(List<String> keys) {
+	public Map<String, Object> getBulkImpl(List<String> keys) {
 		return delegate.getBulk(keys);
 	}
 	
 	@Override
-	public Object get(String key) {
+	public Object getImpl(String key) {
 		return delegate.get(key);
 	}
 	
 	@Override
-	public void flush() {
+	public void flushImpl() {
 		delegate.flush();
 		
 	}
 	
 	@Override
-	public void dirty(String key) {
+	public void dirtyImpl(String key) {
 		delegate.dirty(key);
 		
 	}

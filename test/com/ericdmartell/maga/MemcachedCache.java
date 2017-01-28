@@ -7,7 +7,7 @@ import com.ericdmartell.cache.Cache;
 
 import net.spy.memcached.MemcachedClient;
 
-public class MemcachedCache implements Cache {
+public class MemcachedCache extends Cache {
 	
 	private MemcachedClient memcachedClient;
 	
@@ -17,23 +17,23 @@ public class MemcachedCache implements Cache {
 	}
 	
 	
-	public Object get(String key) {
+	public Object getImpl(String key) {
 		return memcachedClient.get(key);
 	}
 	
-	public void set(String key, Object val) {
+	public void setImpl(String key, Object val) {
 		memcachedClient.set(key, Integer.MAX_VALUE, val);
 	}
 
-	public void flush() {
+	public void flushImpl() {
 		memcachedClient.flush();
 	}
-	public void dirty(String key) {
+	public void dirtyImpl(String key) {
 		memcachedClient.delete(key);
 	}
 
 	@Override
-	public Map<String, Object> getBulk(List<String> keys) {
+	public Map<String, Object> getBulkImpl(List<String> keys) {
 		return memcachedClient.getBulk(keys);
 	}
 }
