@@ -17,8 +17,6 @@ public abstract class Cache {
 		if (ret != null) {
 			hits++;
 		} else {
-			System.out.println("missed: " + key);
-			new Exception().printStackTrace();
 			misses++;
 		}
 		return ret;
@@ -32,8 +30,6 @@ public abstract class Cache {
 		flushImpl();
 	}
 	public void dirty(String key) {
-		System.out.println("dirtied: " + key);
-		new Exception().printStackTrace();
 		dirties++;
 		dirtyImpl(key);
 	}
