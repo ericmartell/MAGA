@@ -11,6 +11,7 @@ public abstract class Cache {
 	public long dirties = 0;
 	public long bulkHits = 0;
 	public long bulkMisses = 0;
+	public long bulkTrips = 0;
 	
 	public Object get(String key) {
 		Object ret = getImpl(key);
@@ -35,6 +36,7 @@ public abstract class Cache {
 	}
 	public Map<String, Object> getBulk(List<String> keys) {
 		Map<String, Object> ret = getBulkImpl(keys);
+		bulkTrips++;
 		bulkHits += ret.size();
 		bulkMisses += keys.size() - ret.size();
 		return ret;
