@@ -41,7 +41,16 @@ public abstract class Cache {
 		bulkMisses += keys.size() - ret.size();
 		return ret;
 	}
-	
+	public void resetStats() {
+		hits = 0;
+		misses = 0;
+		sets = 0;
+		flushes = 0;
+		dirties = 0;
+		bulkHits = 0;
+		bulkMisses = 0;
+		bulkTrips = 0;
+	}
 	public abstract Object getImpl(String key);
 	public abstract void setImpl(String key, Object val);
 	public abstract void flushImpl();
