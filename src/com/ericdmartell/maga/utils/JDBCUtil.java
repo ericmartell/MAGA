@@ -10,6 +10,8 @@ import java.util.List;
 import javax.sql.DataSource;
 
 public class JDBCUtil {
+	public static long queries = 0;
+	public static long updates = 0;
 	public static Connection getConnection(DataSource dataSource) {
 		try {
 			return dataSource.getConnection();
@@ -19,6 +21,7 @@ public class JDBCUtil {
 	}
 
 	public static ResultSet executeQuery(Connection connection, String sql, Object... params) {
+		queries++;
 		try {
 			PreparedStatement pstmt = prepareStatmenent(connection, sql);
 			if (params.length > 0) {
@@ -41,6 +44,7 @@ public class JDBCUtil {
 	}
 
 	public static List<Long> executeQueryAndReturnLongs(DataSource dataSource, String sql, Object... params) {
+		queries++;
 		Connection connection = getConnection(dataSource);
 		try {
 			PreparedStatement pstmt = prepareStatmenent(connection, sql);
@@ -72,6 +76,7 @@ public class JDBCUtil {
 	}
 
 	public static List<String> executeQueryAndReturnStrings(DataSource dataSource, String sql, Object... params) {
+		queries++;
 		Connection connection = getConnection(dataSource);
 		try {
 			PreparedStatement pstmt = prepareStatmenent(connection, sql);
@@ -114,6 +119,7 @@ public class JDBCUtil {
 	}
 
 	public static void executeUpdate(String sql, DataSource dataSource, Object... params) {
+		updates++;
 		Connection connection = getConnection(dataSource);
 		try {
 			PreparedStatement pstmt = prepareStatmenent(connection, sql);

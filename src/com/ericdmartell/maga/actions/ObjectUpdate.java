@@ -143,6 +143,7 @@ public class ObjectUpdate {
 						pstmt.setString(i, id);
 					}
 					pstmt.executeUpdate();
+					JDBCUtil.updates++;
 					success = true;
 				} catch (SQLException e) {
 					id = UUID.randomUUID().toString();
@@ -183,7 +184,7 @@ public class ObjectUpdate {
 			}
 			pstmt.setString(fieldNames.size() + 1, obj.id);
 			pstmt.executeUpdate();
-
+			JDBCUtil.updates++;
 		} catch (SQLException e) {
 			throw new MAGAException(e);
 		} finally {

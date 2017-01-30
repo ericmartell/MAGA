@@ -63,6 +63,7 @@ public class HistoryUtil {
 					stmt.setString(2, json);
 					stmt.setString(3, StackUtils.throwableToStackString(e));
 					stmt.executeUpdate();
+					JDBCUtil.updates++;
 				} catch (SQLException e) {
 					e.printStackTrace();
 					throw new RuntimeException(e);
