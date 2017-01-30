@@ -3,8 +3,6 @@ package com.ericdmartell.cache;
 import java.util.List;
 import java.util.Map;
 
-import com.ericdmartell.maga.MemcachedCache;
-
 public abstract class Cache {
 	public long hits = 0;
 	public long misses = 0;
@@ -37,9 +35,8 @@ public abstract class Cache {
 		dirtyImpl(key);
 	}
 	public Map<String, Object> getBulk(List<String> keys) {
-		if (this instanceof MemcachedCache) {
-			System.out.println(keys);
-		}
+		System.out.println(keys);
+		new Exception().printStackTrace();
 		Map<String, Object> ret = getBulkImpl(keys);
 		bulkTrips++;
 		bulkHits += ret.size();
