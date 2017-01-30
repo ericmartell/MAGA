@@ -35,8 +35,6 @@ public abstract class Cache {
 		dirtyImpl(key);
 	}
 	public Map<String, Object> getBulk(List<String> keys) {
-		System.out.println(keys);
-		new Exception().printStackTrace();
 		Map<String, Object> ret = getBulkImpl(keys);
 		bulkTrips++;
 		bulkHits += ret.size();
