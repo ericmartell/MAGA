@@ -166,7 +166,7 @@ public class SchemaSync {
 									dataSource);
 						} else {
 							JDBCUtil.executeUpdate(
-									"alter table `" + tableName + " `add column " + columnName + " bigint(18)",
+									"alter table `" + tableName + " ` add column " + columnName + " bigint(18)",
 									dataSource);
 						}
 
