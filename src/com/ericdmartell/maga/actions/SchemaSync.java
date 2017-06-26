@@ -166,7 +166,7 @@ public class SchemaSync {
 									dataSource);
 						} else {
 							JDBCUtil.executeUpdate(
-									"alter table `" + tableName + " ` add column " + columnName + " bigint(18)",
+									"alter table `" + tableName + "` add column " + columnName + " bigint(18)",
 									dataSource);
 						}
 
@@ -174,7 +174,7 @@ public class SchemaSync {
 					if (!indexes.contains(columnName)) {
 						System.out.println("Adding index to join column " + columnName + " on " + tableName);
 						JDBCUtil.executeUpdate(
-								"alter table `" + tableName + " ` ∂add index " + columnName + "(" + columnName + ")",
+								"alter table `" + tableName + "` add index " + columnName + "(" + columnName + ")",
 								dataSource);
 					}
 				} else {
