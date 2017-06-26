@@ -129,6 +129,8 @@ public class MAGACache extends Cache {
 				dirty(existingTemplateKey);
 			}
 		}
+		
+		dirty("LoadAll:" + obj.getClass().getSimpleName());
 
 	}
 

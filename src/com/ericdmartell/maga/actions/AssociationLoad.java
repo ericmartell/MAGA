@@ -54,6 +54,9 @@ public class AssociationLoad {
 			// If we're running in a template, cache the result on the object
 			// itself.
 			if (template != null) {
+				if (obj.templateAssociations == null) {
+					obj.templateAssociations = new THashMap<>();
+				}
 				cache.cacheAssociatedObjectsForTemplate(obj, association, ret);
 			}
 			return ret;

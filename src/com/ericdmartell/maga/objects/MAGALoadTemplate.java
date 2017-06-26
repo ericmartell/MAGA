@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.ericdmartell.maga.MAGA;
 
-public abstract class MAGALoadTemplate {
+public abstract class MAGALoadTemplate<T> {
 	
 	public MAGALoadTemplate(Object... params) {
 		

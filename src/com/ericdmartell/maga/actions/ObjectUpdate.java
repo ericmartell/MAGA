@@ -42,6 +42,7 @@ public class ObjectUpdate {
 		if (obj.id == null) {
 			// We're adding a new object.
 			addSQL(obj);
+			cache.dirtyObject(obj);
 		} else {
 			oldObj = maga.load(obj.getClass(), obj.id);
 			// If the object being updated has a join column, an old object
@@ -146,6 +147,9 @@ public class ObjectUpdate {
 					JDBCUtil.updates++;
 					success = true;
 				} catch (SQLException e) {
+					if (e instanceof com.mysql.jdbc.PacketTooBigException) {
+						success = true;
+					}
 					id = UUID.randomUUID().toString();
 				}
 			}

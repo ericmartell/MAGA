@@ -6,15 +6,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.sql.DataSource;
+
+import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 public class JDBCUtil {
 	public static long queries = 0;
 	public static long updates = 0;
+	
+	public static Set<TrackedConnection> openConnections = new THashSet<>();
+	
 	public static Connection getConnection(DataSource dataSource) {
 		try {
-			return dataSource.getConnection();
+			TrackedConnection ret = new TrackedConnection(dataSource.getConnection());
+			openConnections.add(ret);
+			return ret;
 		} catch (SQLException e) {
 			throw new MAGAException(e);
 		}
@@ -112,6 +122,9 @@ public class JDBCUtil {
 			return;
 		}
 		try {
+			if (connection instanceof TrackedConnection) {
+				openConnections.remove((TrackedConnection) connection);
+			}
 			connection.close();
 		} catch (Exception e) {
 

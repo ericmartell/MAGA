@@ -45,15 +45,21 @@ public class ObjectLoad {
 	}
 
 	public List<MAGAObject> loadAll(Class clazz) {
+		
+		List<MAGAObject> ret = (List<MAGAObject>) cache.get("LoadAll:" + clazz.getSimpleName());
+		if (ret != null) {
+			return ret;
+		}
 		Connection connection = JDBCUtil.getConnection(dataSource);
-		//To get all ids, we go to the db, but there should be a faster way to do this (I hope).
 		try {
 			ResultSet rst = JDBCUtil.executeQuery(connection, "select id from `" + clazz.getSimpleName() + "`");
 			List<String> ids = new ArrayList<>();
 			while (rst.next()) {
 				ids.add(rst.getString(1));
 			}
-			return load(clazz, ids);
+			ret = load(clazz, ids);
+			cache.set("LoadAll:" + clazz.getSimpleName(), ret);
+			return ret;
 		} catch (SQLException e) {
 			throw new MAGAException(e);
 		} finally {
