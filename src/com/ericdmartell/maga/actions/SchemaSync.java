@@ -174,7 +174,7 @@ public class SchemaSync {
 					if (!indexes.contains(columnName)) {
 						System.out.println("Adding index to join column " + columnName + " on " + tableName);
 						JDBCUtil.executeUpdate(
-								"alter table `" + tableName + " `add index " + columnName + "(" + columnName + ")",
+								"alter table `" + tableName + " ` ∂add index " + columnName + "(" + columnName + ")",
 								dataSource);
 					}
 				} else {
@@ -191,13 +191,13 @@ public class SchemaSync {
 						String type2 = association.class2().isAnnotationPresent(MAGATimestampID.class) ? "varchar(255)"
 								: "bigint(18)";
 						changes = true;
-						JDBCUtil.executeUpdate("create table `" + tableName + " `(" + col1 + " " + type1 + ", " + col2
+						JDBCUtil.executeUpdate("create table `" + tableName + "`(" + col1 + " " + type1 + ", " + col2
 								+ "  " + type2 + ")", dataSource);
 						JDBCUtil.executeUpdate(
-								"alter table `" + tableName + " `add index " + col1 + "(" + col1 + "," + col2 + ")",
+								"alter table `" + tableName + "` add index " + col1 + "(" + col1 + "," + col2 + ")",
 								dataSource);
 						JDBCUtil.executeUpdate(
-								"alter table `" + tableName + " `add index " + col2 + "(" + col2 + "," + col1 + ")",
+								"alter table `" + tableName + "` add index " + col2 + "(" + col2 + "," + col1 + ")",
 								dataSource);
 						System.out.println("Creating join table " + tableName);
 					}
