@@ -5,12 +5,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.sql.DataSource;
 
+import gnu.trove.TCollections;
 import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
@@ -18,7 +21,7 @@ public class JDBCUtil {
 	public static long queries = 0;
 	public static long updates = 0;
 	
-	public static Set<TrackedConnection> openConnections = new THashSet<>();
+	public static Set<TrackedConnection> openConnections = Collections.synchronizedSet(new HashSet<>());
 	
 	public static Connection getConnection(DataSource dataSource) {
 		try {
