@@ -152,7 +152,6 @@ public class ObjectLoad {
 				MAGAObject toFill = emptyObject.clone();
 				// Fill those objects
 				for (String fieldName : fieldNames) {
-					Object value = rst.getObject(fieldName);
 					ReflectionUtils.setFieldValue(toFill, fieldName, rst.getObject(fieldName));
 				}
 
