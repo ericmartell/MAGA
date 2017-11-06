@@ -35,7 +35,7 @@ public class DirectSqlQuery {
 	}
 
 	public DirectSqlQuery leftJoin(Class clazz, String on) {
-		joins.add("inner join");
+		joins.add("left join");
 		classes.add(clazz);
 		ons.add(on);
 		return this;
