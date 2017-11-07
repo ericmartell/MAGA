@@ -107,18 +107,11 @@ public class ObjectUpdate {
 			}
 			sql += "`" + fieldName + "`,";
 		}
-		if (genId) {
 			sql += "id) values(";
 			for (int i = 0; i < fieldNames.size(); i++) {
 				sql += "?,";
 			}
-		} else {
-			sql = sql.substring(0, sql.length() - 1);
-			sql += ") values(";
-			for (int i = 0; i < fieldNames.size() - 1; i++) {
-				sql += "?,";
-			}
-		}
+		
 		
 		
 		sql = sql.substring(0, sql.length() - 1);
@@ -137,12 +130,16 @@ public class ObjectUpdate {
 
 			}
 			boolean success = false;
-			String id = UUID.randomUUID().toString();
+			String id;
+			if (genId) {
+				id = UUID.randomUUID().toString();
+			} else {
+				id = (JDBCUtil.executeQueryAndReturnSingleLong(dataSource, "select max(cast(id as unsigned)) from " + obj.getClass().getSimpleName()) + 1) + "";
+			}
+		
 			while (!success) {
 				try {
-					if (genId) {
-						pstmt.setString(i, id);
-					}
+					pstmt.setString(i, id);				
 					pstmt.executeUpdate();
 					JDBCUtil.updates++;
 					success = true;
@@ -153,13 +150,9 @@ public class ObjectUpdate {
 					id = UUID.randomUUID().toString();
 				}
 			}
-			if (!genId) {
-				ResultSet rst = pstmt.executeQuery("select LAST_INSERT_ID()");
-				rst.next();
-				obj.id = rst.getString(1);
-			} else {
-				obj.id = id;
-			}
+			
+			obj.id = id;
+			
 		} catch (SQLException e) {
 			throw new MAGAException(e);
 		} finally {

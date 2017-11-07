@@ -52,14 +52,10 @@ public class SchemaSync {
 						tableName, schema) == 1;
 				if (!tableExists) {
 					changes = true;
-					if (clazz.isAnnotationPresent(MAGATimestampID.class)) {
-						JDBCUtil.executeUpdate(
-								"create table `" + tableName + "`(id varchar(255) not null, primary key(id))",
-								dataSource);
-					} else {
-						JDBCUtil.executeUpdate("create table `" + tableName
-								+ "`(id bigint(18) not null AUTO_INCREMENT, primary key(id))", dataSource);
-					}
+					JDBCUtil.executeUpdate(
+							"create table `" + tableName + "`(id varchar(255) not null, primary key(id))",
+							dataSource);
+			
 
 					System.out.println("Creating table " + tableName);
 				}
@@ -85,9 +81,15 @@ public class SchemaSync {
 					}
 
 				}
-				Collection<String> fieldNames = ReflectionUtils.getFieldNames(clazz);
+				Collection<String> fieldNames = new ArrayList<String>(ReflectionUtils.getFieldNames(clazz));
+				fieldNames.add("id");
 				for (String columnName : fieldNames) {
-					Class fieldType = ReflectionUtils.getFieldType(clazz, columnName);
+					Class fieldType;
+					if (columnName.equals("id")) {
+						fieldType = String.class;
+					} else {
+						fieldType = ReflectionUtils.getFieldType(clazz, columnName);
+					}
 					String columnType;
 					Field field;
 					try {
@@ -118,7 +120,7 @@ public class SchemaSync {
 								"alter table `" + tableName + "` add column `" + columnName + "` " + columnType,
 								dataSource);
 					} else if (!columnsToTypes.get(columnName).toLowerCase().contains(columnType)
-							&& fieldType != String.class) {
+							&& (fieldType != String.class || !columnsToTypes.get(columnName).toLowerCase().contains("text"))) {
 						changes = true;
 						System.out.println(
 								"Modifying column " + columnName + ":" + columnType + " to table " + tableName);
