@@ -147,7 +147,7 @@ public class AssociationLoad {
 		Connection con = JDBCUtil.getConnection(dataSource);
 		try {
 			ResultSet rst = JDBCUtil.executeQuery(con,
-					"select `" + otherColumn + "` from `" + tableName + "` where `" + whereColumn + "` = ?", obj.id);
+					"select distinct `" + otherColumn + "` from `" + tableName + "` where `" + whereColumn + "` = ?", obj.id);
 			while (rst.next()) {
 				ret.add(rst.getString(otherColumn));
 			}
