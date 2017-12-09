@@ -40,7 +40,7 @@ public class SchemaSync {
 		String schema = JDBCUtil.executeQueryAndReturnSingleString(dataSource, "select database()");
 		Connection connection = JDBCUtil.getConnection(dataSource);
 		try {
-			
+
 			Reflections reflections = new Reflections("");
 			List<Class<MAGAObject>> classes = new ArrayList(reflections.getSubTypesOf(MAGAObject.class));
 
@@ -53,9 +53,7 @@ public class SchemaSync {
 				if (!tableExists) {
 					changes = true;
 					JDBCUtil.executeUpdate(
-							"create table `" + tableName + "`(id varchar(255) not null, primary key(id))",
-							dataSource);
-			
+							"create table `" + tableName + "`(id varchar(255) not null, primary key(id))", dataSource);
 
 					System.out.println("Creating table " + tableName);
 				}
@@ -108,6 +106,8 @@ public class SchemaSync {
 						columnType = "decimal(10,2)";
 					} else if (fieldType == Date.class) {
 						columnType = "datetime";
+					} else if (columnName.equals("id")) {
+						columnType = "varchar(255)";
 					} else {
 						columnType = "varchar(500)";
 					}
@@ -120,7 +120,8 @@ public class SchemaSync {
 								"alter table `" + tableName + "` add column `" + columnName + "` " + columnType,
 								dataSource);
 					} else if (!columnsToTypes.get(columnName).toLowerCase().contains(columnType)
-							&& (fieldType != String.class || !columnsToTypes.get(columnName).toLowerCase().contains("text"))) {
+							&& (fieldType != String.class
+									|| !columnsToTypes.get(columnName).toLowerCase().contains("text"))) {
 						changes = true;
 						System.out.println(
 								"Modifying column " + columnName + ":" + columnType + " to table " + tableName);
@@ -136,7 +137,6 @@ public class SchemaSync {
 								+ indexedColumn + "`)", dataSource);
 					}
 				}
-				
 
 			}
 			List<Class<MAGAAssociation>> associationsClasses = new ArrayList(
