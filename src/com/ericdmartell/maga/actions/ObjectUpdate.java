@@ -147,6 +147,7 @@ public class ObjectUpdate {
 					if (e instanceof com.mysql.jdbc.PacketTooBigException) {
 						success = true;
 					}
+					e.printStackTrace();
 					id = UUID.randomUUID().toString();
 				}
 			}
