@@ -146,7 +146,12 @@ public class ObjectUpdate {
 					success = true;
 				} catch (SQLIntegrityConstraintViolationException e) {
 					e.printStackTrace();
-					id = UUID.randomUUID().toString();
+					if (genId) {
+						id = UUID.randomUUID().toString();
+					} else {
+						id = (JDBCUtil.executeQueryAndReturnSingleLong(dataSource,
+								"select max(cast(id as unsigned)) from " + obj.getClass().getSimpleName()) + 1) + "";
+					}
 				} catch (SQLException e) {
 					throw new RuntimeException(e);
 				}
