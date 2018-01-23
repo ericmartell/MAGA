@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,6 @@ public class ObjectUpdate {
 			cache.dirtyObject(obj);
 		}
 
-		
 		for (MAGAAssociation assoc : affectedAssociations) {
 			String val = null;
 			String oldVal = null;
@@ -89,15 +89,17 @@ public class ObjectUpdate {
 		cache.dirtyAssoc(obj, association);
 
 	}
+
 	private static Map<Class, Boolean> autoId = new THashMap<>();
+
 	private void addSQL(MAGAObject obj) {
 		Class clazz = obj.getClass();
 		if (!autoId.containsKey(clazz)) {
 			autoId.put(clazz, clazz.isAnnotationPresent(MAGATimestampID.class));
 		}
-		
+
 		boolean genId = autoId.get(clazz);
-		
+
 		List<String> fieldNames = new ArrayList<>(ReflectionUtils.getFieldNames(obj.getClass()));
 
 		String sql = "insert into  `" + obj.getClass().getSimpleName() + "`(";
@@ -107,13 +109,11 @@ public class ObjectUpdate {
 			}
 			sql += "`" + fieldName + "`,";
 		}
-			sql += "id) values(";
-			for (int i = 0; i < fieldNames.size(); i++) {
-				sql += "?,";
-			}
-		
-		
-		
+		sql += "id) values(";
+		for (int i = 0; i < fieldNames.size(); i++) {
+			sql += "?,";
+		}
+
 		sql = sql.substring(0, sql.length() - 1);
 		sql += ")";
 		Connection con = JDBCUtil.getConnection(dataSource);
@@ -134,26 +134,26 @@ public class ObjectUpdate {
 			if (genId) {
 				id = UUID.randomUUID().toString();
 			} else {
-				id = (JDBCUtil.executeQueryAndReturnSingleLong(dataSource, "select max(cast(id as unsigned)) from " + obj.getClass().getSimpleName()) + 1) + "";
+				id = (JDBCUtil.executeQueryAndReturnSingleLong(dataSource,
+						"select max(cast(id as unsigned)) from " + obj.getClass().getSimpleName()) + 1) + "";
 			}
-		
+
 			while (!success) {
 				try {
-					pstmt.setString(i, id);				
+					pstmt.setString(i, id);
 					pstmt.executeUpdate();
 					JDBCUtil.updates++;
 					success = true;
-				} catch (SQLException e) {
-					if (e instanceof com.mysql.jdbc.PacketTooBigException) {
-						success = true;
-					}
+				} catch (SQLIntegrityConstraintViolationException e) {
 					e.printStackTrace();
 					id = UUID.randomUUID().toString();
+				} catch (SQLException e) {
+					throw new RuntimeException(e);
 				}
 			}
-			
+
 			obj.id = id;
-			
+
 		} catch (SQLException e) {
 			throw new MAGAException(e);
 		} finally {
