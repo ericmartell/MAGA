@@ -25,6 +25,9 @@ public class HistoryUtil {
 		if (!writeHistory.get(obj.getClass())) {
 			return;
 		}
+		if (true) {
+			return;
+		}
 		final Throwable e = new Throwable();
 		maga.executorPool.submit(new Runnable() {
 			@Override
