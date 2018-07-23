@@ -7,12 +7,17 @@ import java.util.Map;
 
 import com.ericdmartell.cache.Cache;
 import com.ericdmartell.cache.CacheData;
+import com.fasterxml.jackson.databind.util.LRUMap;
 
 
 public class HashMapCache extends Cache {
 
-	Map<String, Object> data = new HashMap<>();
+	LRUMap<String, Object> data;
 	public CacheData cacheData = new CacheData();
+
+	public HashMapCache(int maxEntries) {
+		data = new LRUMap<>(100, maxEntries);
+	}
 
 	@Override
 	public Object getImpl(String key) {
@@ -37,14 +42,14 @@ public class HashMapCache extends Cache {
 	@Override
 	public void flushImpl() {
 		System.out.println("Flush");
-		data = new HashMap<>();
+		data.clear();
 	}
 
 	@Override
 	public void dirtyImpl(String key) {
 		System.out.println("Dirty: " + key);
 		cacheData.dirties++;
-		data.remove(key);
+		data.put(key, null);
 
 	}
 
