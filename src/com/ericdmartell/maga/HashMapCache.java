@@ -12,11 +12,11 @@ import com.fasterxml.jackson.databind.util.LRUMap;
 
 public class HashMapCache extends Cache {
 
-	LRUMap<String, Object> data;
+	Map<String, Object> data;
 	public CacheData cacheData = new CacheData();
 
 	public HashMapCache(int maxEntries) {
-		data = new LRUMap<>(100, maxEntries);
+		data = new HashMap<>();
 	}
 
 	@Override
