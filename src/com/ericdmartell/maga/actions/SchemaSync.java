@@ -132,9 +132,15 @@ public class SchemaSync {
 				}
 				for (String indexedColumn : ReflectionUtils.getIndexedColumns(clazz)) {
 					if (!indexes.contains(indexedColumn)) {
-						System.out.println("Adding index " + indexedColumn + " to table " + tableName);
-						JDBCUtil.executeUpdate("alter table `" + tableName + "` add index `" + indexedColumn + "`(`"
-								+ indexedColumn + "`)", dataSource);
+						try {
+							System.out.println("Adding index " + indexedColumn + " to table " + tableName);
+							JDBCUtil.executeUpdate("alter table `" + tableName + "` add index `" + indexedColumn + "`(`"
+									+ indexedColumn + "`)", dataSource);
+						} catch (Exception e) {
+							System.out.println("Index is too wide");
+							JDBCUtil.executeUpdate("alter table `" + tableName + "` add index `" + indexedColumn + "`(`"
+									+ indexedColumn + "`(100))", dataSource);
+						}
 					}
 				}
 
