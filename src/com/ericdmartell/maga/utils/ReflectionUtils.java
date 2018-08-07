@@ -1,10 +1,14 @@
 package com.ericdmartell.maga.utils;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.ericdmartell.maga.annotations.MAGAORMField;
 import com.ericdmartell.maga.objects.MAGAObject;
@@ -33,17 +37,28 @@ public class ReflectionUtils {
 		}
 		return classesToFieldNamesAndTypes.get(clazz).get(fieldName);
 	}
-
+	
+	private static Set<Class> standardClasses = new HashSet<>(Arrays.asList(new Class[] {
+		int.class, Integer.class, BigDecimal.class, String.class, long.class, Long.class
+	}));
+			
 	public static boolean setFieldValue(MAGAObject obj, String fieldName, Object value) {
 		if (!classesToFieldNamesAndTypes.containsKey(obj.getClass())) {
 			buildIndex(obj.getClass());
 		}
 		try {
+			
 			if (classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName) == null) {
 				return false;
 			}
 			
-			if (getFieldType(obj.getClass(), fieldName).equals(long.class) || getFieldType(obj.getClass(), fieldName).equals(Long.class)) {
+			if (getFieldType(obj.getClass(), fieldName).equals(BigDecimal.class)) {
+				if (value == null) {
+					classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value);
+				} else {
+					classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, new BigDecimal(value + ""));
+				}
+			} else if (getFieldType(obj.getClass(), fieldName).equals(long.class) || getFieldType(obj.getClass(), fieldName).equals(Long.class)) {
 				if (value == null) {
 					value = 0L;
 				}
@@ -57,6 +72,10 @@ public class ReflectionUtils {
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value + "");
 			} else if ((getFieldType(obj.getClass(), fieldName).equals(Boolean.class) || getFieldType(obj.getClass(), fieldName).equals(boolean.class)) && value instanceof String) {
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value == null ? false : ("1".equals(value + "")));
+			} else if (value != null && !standardClasses.contains(getFieldType(obj.getClass(), fieldName)) && Collection.class.isAssignableFrom(getFieldType(obj.getClass(), fieldName))) { 
+				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, JSONUtil.stringToList(value + ""));
+			} else if (value != null && !standardClasses.contains(getFieldType(obj.getClass(), fieldName))) {
+				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, JSONUtil.stringToObject(value + "", getFieldType(obj.getClass(), fieldName)));
 			} else {
 				classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).set(obj, value);
 			}
@@ -67,7 +86,8 @@ public class ReflectionUtils {
 		return true;
 
 	}
-
+	
+	
 	public static Object getFieldValue(MAGAObject obj, String fieldName) {
 		try {
 		if (!classesToFieldNamesAndTypes.containsKey(obj.getClass())) {
@@ -83,6 +103,13 @@ public class ReflectionUtils {
 				ret = null;
 			} else {
 				ret = classesToFieldNamesAndFields.get(obj.getClass()).get(fieldName).get(obj);
+				if (ret != null && !standardClasses.contains(getFieldType(obj.getClass(), fieldName))) {
+					if (Collection.class.isAssignableFrom(getFieldType(obj.getClass(), fieldName))) {
+						ret = JSONUtil.listToString((List) ret);
+					} else {
+						ret = JSONUtil.serializableToString(ret);
+					}
+				}
 			}
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			throw new MAGAException(e);
