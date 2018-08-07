@@ -120,7 +120,7 @@ public class SchemaSync {
 								"alter table `" + tableName + "` add column `" + columnName + "` " + columnType,
 								dataSource);
 					} else if (!columnsToTypes.get(columnName).toLowerCase().contains(columnType)
-							&& (fieldType != String.class
+							&& ((fieldType != String.class && ReflectionUtils.standardClasses.contains(fieldType))
 									|| !columnsToTypes.get(columnName).toLowerCase().contains("text"))) {
 						changes = true;
 						System.out.println(

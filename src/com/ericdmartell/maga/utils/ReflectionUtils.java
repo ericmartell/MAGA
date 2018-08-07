@@ -21,7 +21,11 @@ public class ReflectionUtils {
 	private static Map<Class<MAGAObject>, Map<String, Field>> classesToFieldNamesAndFields = new THashMap<>();
 	private static Map<Class<MAGAObject>, Map<String, Class>> classesToFieldNamesAndTypes = new THashMap<>();
 	private static Map<Class, List<String>> indexes = new THashMap<>();
-
+	public static Set<Class> standardClasses = new HashSet<>(Arrays.asList(new Class[] {
+		int.class, Integer.class, BigDecimal.class, String.class, long.class, Long.class
+	}));
+	
+	
 	public static Collection<String> getFieldNames(Class clazz) {
 		// Lazily populating classesToFieldNamesAndFields since 2016.
 		if (!classesToFieldNamesAndTypes.containsKey(clazz)) {
@@ -38,9 +42,7 @@ public class ReflectionUtils {
 		return classesToFieldNamesAndTypes.get(clazz).get(fieldName);
 	}
 	
-	private static Set<Class> standardClasses = new HashSet<>(Arrays.asList(new Class[] {
-		int.class, Integer.class, BigDecimal.class, String.class, long.class, Long.class
-	}));
+	
 			
 	public static boolean setFieldValue(MAGAObject obj, String fieldName, Object value) {
 		if (!classesToFieldNamesAndTypes.containsKey(obj.getClass())) {
